@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEXTA</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <a href="#"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+        <nav>
+            <ul class="nav-links">
+                <li class="dropdown">
+                    <a href="#">Home <span class="arrow">&#9662;</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#mission">Our Mission</a></li>
+                        <li><a href="#team">The Team</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#">Test Prep <span class="arrow">&#9662;</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#mission">Principles</a></li>
+                        <li><a href="#team">Individual Series </a></li>
+                        <li><a href="#team">Team Decision Making</a></li>
+                        <li><a href="#team">Personal Financial Literacy</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#">Digital Judge <span class="arrow">&#9662;</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#team">Role Play Judge</a></li>
+                        <li><a href="#mission">Prepared Events Judge</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#">AI Grader <span class="arrow">&#9662;</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#team">Written Entry Grader</a></li>
+                        <li><a href="#mission">Presentation Grader</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Sign In </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="hero">
+        <div class="hero-content">
+            <p style="font-weight: 500; font-size:150%;">Your Digital Path Towards Glass</p>
+            <h1 style="font-size: 120px; margin-top: -10%;">DEXTA</h1>
+            <button class="cta-btn" onclick="document.querySelector('#mission').scrollIntoView({behavior: 'smooth'})">
+                Just Compete
+            </button>
+        </div>
+    </main>
+
+    <!-- Our Mission Section -->
+    <section id="mission" class="mission-section">
+        <div class="mission-left">
+            <h1 class="mission-title">Role of<br><span>DEXTA</span></h1>
+            <h3 class="mission-heading">DEXTA Mission Statement</h3>
+            <p class="mission-text">
+                Our mission at <strong>DEXTA</strong> is to empower the next generation of DECA competitors
+                by providing an <strong>intelligent</strong>, <strong>accessible</strong>, and
+                <strong>engaging</strong> platform for practice, preparation, and growth. We strive to bridge
+                technology and education, offering students the tools, feedback, and confidence they need to excel
+                in competition, develop leadership skills, and unlock their full potential.
+            </p>
+            <a href="#team" class="about-btn">Our Team↓</a>
+        </div>
+        <div class="mission-right">
+            <img src="{% static 'core/2.png' %}" alt="DECA Winner">
+        </div>
+    </section>
+    <!-- Team Section -->
+    <!-- <section id="team" class="team-section">  -->
+    <div id="team">
+        <h1 class="team-title">The Team</h1>
+        <div class="team-container">
+            <div class="character">
+                <img src="{% static 'core/me1.png' %}" alt="The Engineer" class="character-img">
+                <div class="team-card">
+                    <h3 class="team-role">The Engineer</h3>
+                    <p class="team-desc">Builds and maintains the product (Django backend, frontend, AI integration).</p>
+                </div>
+            </div>
+            <div class="character">
+                <img src="{% static 'core/me2.png' %}" alt="The Engineer" class="character-img">
+                <div class="team-card">
+                    <!-- <img src="{% static 'core/character2.png' %}" alt="The CEO"> -->
+                    <h3 class="team-role">The CEO</h3>
+                    <p class="team-desc">Vision, leadership, partnerships, fundraising, and overall company direction.</p>
+                </div>
+            </div>
+            <div class="character">
+                <img src="{% static 'core/me3.png' %}" alt="The Engineer" class="character-img">
+                <div class="team-card">
+                    <!-- <img src="{% static 'core/character3.png' %}" alt="The Visionary"> -->
+                    <h3 class="team-role">The Visionary</h3>
+                    <p class="team-desc">Ensures every step aligns with the mission, long-term goals, and guides innovation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- </section> -->
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,426 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+    scroll-padding-top: -100%;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    color: white;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    text-align: center;
+}
+
+/* Logo Styling with reflection */
+.logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: rgb(220, 220, 220);
+    letter-spacing: 1px;
+    opacity: 0.95;
+    -webkit-box-reflect: below .7px
+        linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+a:active {
+text-decoration: none; 
+}
+
+a:link {
+    text-decoration: none;
+  }
+
+
+
+
+/* Nav links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    justify-content: center;  /* centers horizontally */
+    padding: 0;               /* remove default ul padding */
+    margin: 0; 
+}
+
+.nav-links li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+
+}
+
+.nav-links li a:hover {
+    font-weight: 500;
+    color: rgb(156, 95, 214); /* always stay white */
+    transition: color 0.3s ease;
+
+}
+
+/*.nav-links li a:visited,
+.nav-links li a:active {
+    color: white;
+
+} */
+
+.arrow {
+    font-size: 0.7rem;
+    margin-left: 6px;
+}
+
+/* Hero Section - full screen */
+.hero {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* background: linear-gradient(120deg, #070029,#002159, #024ee7); */
+    color: white;
+    text-align: center;
+    min-height: 100vh;
+    padding-top: 40px; /* offset for fixed navbar */
+    position: relative;
+    overflow: hidden;
+    background-image: url("../core/waves.png"); /* path relative to style.css */
+    background-size: cover;       /* fill the entire viewport */
+    background-position: center;  /* center the image */
+    background-repeat: no-repeat; /* no tiling */
+}
+
+/* Circle background behind text */
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 100%;
+    background: linear-gradient(180deg, #e39bed,#d658d6, #1a1e62, #002159);
+    opacity: 0.65;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    font-weight: 400;
+}
+
+/* CTA Button */
+.cta-btn {
+    padding: 14px 32px;
+    background: linear-gradient(90deg, #1100d6,#e000f4, #e000f4);
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s;
+    color: white;
+}
+
+.cta-btn:hover {
+    opacity: 0.85;
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%); /* centers directly under Home */
+    background: #1e1e1e;
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    border-radius: 8px;
+    min-width: 160px;
+    text-align: center; /* centers text inside dropdown */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-menu li {
+    padding: 8px 20px;
+}
+
+.dropdown-menu li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    font-weight: 500;
+}
+
+.dropdown-menu li a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+/* Our Mission Section */
+.mission-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100vh;
+    padding: 150px 80px;
+    background: linear-gradient(90deg, #000000 50%, #0b0170 50%);
+    color: white;
+    gap: 50px;
+}
+
+.mission-left {
+    flex: 1;
+    max-width: 550px;
+}
+
+.mission-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mission-right img {
+    width: 480px;
+    border-radius: 20px;
+    border: 3px solid #6100ff;
+    box-shadow: 0 0 25px rgba(97,0,255,0.5);
+}
+
+.mission-title {
+    font-size: 72px;
+    font-weight: 700;
+    background: linear-gradient(180deg, #d89cff, #b500ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    line-height: 1.1;
+}
+
+.mission-heading {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-top: 10px;
+}
+
+.mission-text {
+    font-size: 18px;
+    line-height: 1.8;
+    margin: 20px 0;
+}
+
+.about-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background: linear-gradient(90deg, #a000ff, #4600ff);
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.about-btn:hover {
+    opacity: 0.85;
+}
+
+/* Responsive */
+@media (max-width: 950px) {
+    .mission-section {
+        flex-direction: column;
+        text-align: center;
+        background: #000;
+        padding: 100px 30px;
+    }
+
+    .mission-right img {
+        width: 320px;
+        margin-top: 40px;
+    }
+
+    .mission-title {
+        font-size: 48px;
+    }
+}
+
+/* TEAM SECTION */
+/* .team-section {
+    position: relative;
+    background-color: #000;
+    color: white;
+    text-align: center;
+    padding: 120px 60px;
+    overflow: hidden;
+}
+
+/* Background glow behind content */
+/* .team-section::before,
+.team-section::after {
+    content: "";
+    position: absolute;
+    width: 650px;
+    height: 650px;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.5;
+    z-index: 1; /* behind everything */
+
+
+/* .team-section::before {
+    background: #d658d6;
+    top: -150px;
+    left: -150px;
+}
+
+.team-section::after {
+    background: #5a00ff;
+    bottom: -150px;
+    right: -150px;
+} */
+
+#team{
+    background-image: url("../core/waves1.png"); /* path relative to style.css */
+
+}
+
+.character{
+    transition: transform .5s ease, box-shadow 0.5s ease;
+}
+
+.character:hover{
+    transform: translateY(-20px);
+    box-shadow: 0px 505px 255px rgba(128, 0, 255, 0.6);
+}
+
+.character-img{
+    width:60%;
+    z-index: 6;
+    /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
+}
+
+/* Foreground content */
+.team-title,
+.team-container {
+    position: relative;
+    z-index: 3; /* ensures they're above background */
+    text-align: center;
+    padding: 5%;
+    color:white
+}
+
+.team-title {
+    font-size: 5rem;
+    font-weight: 700;
+    margin-bottom: 80px;
+}
+
+/* Card layout */
+.team-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 100px;
+    flex-wrap: wrap;
+    margin-top: -10%;
+}
+
+/* Cards */
+.team-card {
+    background: linear-gradient(180deg, #8b33f7, #4b00ff);
+    border-radius: 25px;
+    width: 320px;
+    padding: 40px 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    color: white;
+    /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
+    position: relative;
+    z-index: 4; /* above glows */
+}
+
+/* .team-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 55px rgba(128, 0, 255, 0.6);
+} */
+
+/* Character images */
+.team-card img {
+    width: 180px;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Text styling */
+.team-role {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.team-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #f0f0f0;
+}
+
+/* Responsive design */
+@media (max-width: 950px) {
+    .team-container {
+        flex-direction: column;
+        align-items: center;
+        /* gap: 50px; */
+    }
+
+    .team-card {
+        width: 90%;
+        max-width: 350px;
+    }
+}
+
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background: #4B2E83;
+    color: white;
+    position: relative;
+    /* top: 1000px; */
+}
