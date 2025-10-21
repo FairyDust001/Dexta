@@ -424,3 +424,13 @@ a:link {
     position: relative;
     /* top: 1000px; */
 }
+
+/* Page transition setup */
+body {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+body.fade-in {
+    opacity: 1;
+}

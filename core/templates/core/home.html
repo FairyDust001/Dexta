@@ -24,7 +24,7 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#">Test Prep <span class="arrow">&#9662;</span></a>
+                    <a href="{% url 'test_prep' %}" class="active">Test Prep <span class="arrow">&#9662;</span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#mission">Principles</a></li>
                         <li><a href="#team">Individual Series </a></li>
@@ -33,7 +33,7 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#">Digital Judge <span class="arrow">&#9662;</span></a>
+                    <a href="{% url 'judge' %}" >Digital Judge <span class="arrow">&#9662;</span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#team">Role Play Judge</a></li>
                         <li><a href="#mission">Prepared Events Judge</a></li>
@@ -117,6 +117,27 @@
     <footer class="footer">
         <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("fade-in");
+        });
+    
+        // Fade out smoothly when navigating away
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', e => {
+                const href = link.getAttribute('href');
+                if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+                    e.preventDefault();
+                    document.body.classList.remove('fade-in');
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 600); // wait for fade-out
+                }
+            });
+        });
+    </script>
+    
 </body>
 </html>
 
