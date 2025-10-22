@@ -1,0 +1,138 @@
+/* Base styling */
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    background: black;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    background: transparent;
+    z-index: 1000;
+  }
+  
+  .logo {
+    font-weight: 700;
+    color: rgb(200, 200, 200);
+    -webkit-box-reflect: below 1px linear-gradient(transparent, rgba(0,0,0,0.6));
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    color: white;
+    transition: font-weight 0.3s ease;
+  }
+  
+  .nav-links a:hover, .nav-links .active {
+    font-weight: 700;
+  }
+  
+  .sign-btn {
+    background: linear-gradient(90deg, #6d00ff, #ff00cc);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  
+  /* Judge Page Layout */
+  .judge-container {
+    text-align: center;
+    margin-top: 140px;
+    width: 100%;
+  }
+  
+  .judge-title {
+    font-size: 4rem;
+    font-weight: 800;
+  }
+  
+  .judge-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    margin-bottom: 50px;
+  }
+  
+  /* Upload Box */
+  .upload-box {
+    border: 3px solid transparent;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #1400ff, #ff00f7);
+    background-clip: padding-box;
+    padding: 20px;
+    width: 55%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .upload-box:hover {
+    transform: scale(1.02);
+  }
+  
+  .plus {
+    font-size: 2rem;
+    margin-right: 15px;
+    font-weight: bold;
+  }
+  
+  .upload-text {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+  
+  /* Dropdown */
+  .select-container {
+    margin-top: 40px;
+  }
+  
+  .select-label {
+    font-size: 1.1rem;
+  }
+  
+  /* Results */
+  .result-container {
+    margin-top: 40px;
+    background: #111;
+    padding: 20px;
+    border-radius: 12px;
+    width: 60%;
+    text-align: left;
+  }
+  
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #ddd;
+  }
+  
+  /* Fade effect */
+  body {
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+  }
+  
+  body.fade-in {
+    opacity: 1;
+  }
+  
