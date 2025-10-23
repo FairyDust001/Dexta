@@ -9,15 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'core/style.css' %}">
+
 </head>
 <body>
     <!-- Navbar -->
     <header class="navbar">
-        <a href="#"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+        <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
         <nav>
             <ul class="nav-links">
                 <li class="dropdown">
-                    <a href="#">Home <span class="arrow">&#9662;</span></a>
+                    <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#mission">Our Mission</a></li>
                         <li><a href="#team">The Team</a></li>
@@ -117,8 +118,6 @@
     <footer class="footer">
         <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
     </footer>
-
-    
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("fade-in");
@@ -138,7 +137,7 @@
             });
         });
     </script>
-    
+      
 </body>
 </html>
 

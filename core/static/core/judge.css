@@ -1,138 +1,220 @@
-/* Base styling */
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  background-color: #000; /* Match DEXTA background */
+  color: white;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+  
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  color: white;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  text-align: center;
+}
+
+/* Logo Styling with reflection */
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgb(220, 220, 220);
+  letter-spacing: 1px;
+  opacity: 0.95;
+  -webkit-box-reflect: below .7px
+      linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+/* Anchor reset */
+a:link, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:active {
+  text-decoration: none;
+}
+
+/* Nav links */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  justify-content: center;  /* centers horizontally */
+  padding: 0;               /* remove default ul padding */
+  margin: 0; 
+}
+
+.nav-links li a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+
+}
+
+.nav-links li a:hover {
+  font-weight: 500;
+  color: rgb(156, 95, 214); /* always stay white */
+  transition: color 0.3s ease;
+
+}
+
+/*.nav-links li a:visited,
+.nav-links li a:active {
+  color: white;
+
+} */
+
+.arrow {
+  font-size: 0.7rem;
+  margin-left: 6px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%); /* centers directly under Home */
+  background: #1e1e1e;
+  list-style: none;
+  padding: 10px 0;
+  margin: 0;
+  border-radius: 8px;
+  min-width: 160px;
+  text-align: center; /* centers text inside dropdown */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-menu li {
+  padding: 8px 20px;
+}
+
+.dropdown-menu li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  font-weight: 500;
+}
+
+.dropdown-menu li a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.signin-btn {
+  background: linear-gradient(90deg, #5a00ff, #ff00f7);
+  padding: 8px 18px;
+  border-radius: 8px;
+  color: white !important;
+  font-weight: 600;
+}
+
+  /* ==========================
+   Page Layout & Judge Section
+========================== */
+.judge-container {
+  max-width: 1000px;
+  margin: 120px auto 100px auto; /* Adds top space below navbar */
+  text-align: center;
+  padding: 0 20px;
+}
+
+.judge-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: rgb(220, 220, 220);
+}
+
+.judge-subtitle {
+  font-size: 1rem;
+  color: rgb(180, 180, 180);
+  margin-bottom: 40px;
+}
+
+.judge-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.judge-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+}
+
+.judge-card h3 {
+  font-size: 1.4rem;
+  color: rgb(220, 220, 220);
+  margin-bottom: 10px;
+}
+
+.judge-card p {
+  color: rgb(200, 200, 200);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Buttons */
+.button {
+  display: inline-block;
+  background: rgb(156, 95, 214);
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  margin-top: 25px;
+}
+
+.button:hover {
+  background: rgb(138, 70, 195);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .test-settings {
+      flex-direction: column;
+  }
+  .question-section {
+      width: 90%;
+  }
+}
+
+/* Page transition setup */
 body {
-    font-family: 'Montserrat', sans-serif;
-    color: white;
-    background: black;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 60px;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    background: transparent;
-    z-index: 1000;
-  }
-  
-  .logo {
-    font-weight: 700;
-    color: rgb(200, 200, 200);
-    -webkit-box-reflect: below 1px linear-gradient(transparent, rgba(0,0,0,0.6));
-  }
-  
-  .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 25px;
-  }
-  
-  .nav-links a {
-    text-decoration: none;
-    color: white;
-    transition: font-weight 0.3s ease;
-  }
-  
-  .nav-links a:hover, .nav-links .active {
-    font-weight: 700;
-  }
-  
-  .sign-btn {
-    background: linear-gradient(90deg, #6d00ff, #ff00cc);
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 700;
-  }
-  
-  /* Judge Page Layout */
-  .judge-container {
-    text-align: center;
-    margin-top: 140px;
-    width: 100%;
-  }
-  
-  .judge-title {
-    font-size: 4rem;
-    font-weight: 800;
-  }
-  
-  .judge-subtitle {
-    font-size: 1.2rem;
-    opacity: 0.8;
-    margin-bottom: 50px;
-  }
-  
-  /* Upload Box */
-  .upload-box {
-    border: 3px solid transparent;
-    border-radius: 20px;
-    background: linear-gradient(90deg, #1400ff, #ff00f7);
-    background-clip: padding-box;
-    padding: 20px;
-    width: 55%;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-  
-  .upload-box:hover {
-    transform: scale(1.02);
-  }
-  
-  .plus {
-    font-size: 2rem;
-    margin-right: 15px;
-    font-weight: bold;
-  }
-  
-  .upload-text {
-    font-size: 1rem;
-    opacity: 0.9;
-  }
-  
-  /* Dropdown */
-  .select-container {
-    margin-top: 40px;
-  }
-  
-  .select-label {
-    font-size: 1.1rem;
-  }
-  
-  /* Results */
-  .result-container {
-    margin-top: 40px;
-    background: #111;
-    padding: 20px;
-    border-radius: 12px;
-    width: 60%;
-    text-align: left;
-  }
-  
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    color: #ddd;
-  }
-  
-  /* Fade effect */
-  body {
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
-  }
-  
-  body.fade-in {
-    opacity: 1;
-  }
+  opacity: 0;
+  transition: opacity .5s ease-in-out;
+}
+
+body.fade-in {
+  opacity: 1;
+}
+
   

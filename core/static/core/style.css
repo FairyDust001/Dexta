@@ -14,19 +14,6 @@ html, body {
     scroll-padding-top: -100%;
 }
 
-/* Page transition setup */
-body {
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-
-body.fade-in {
-    opacity: 1;
-}
-
-body.fade-out {
-    opacity: 1;
-}
 
 
 /* Navbar */
@@ -438,4 +425,14 @@ a:link {
     color: white;
     position: relative;
     /* top: 1000px; */
+}
+
+/* Page transition setup */
+body {
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+}
+
+body.fade-in {
+    opacity: 1;
 }
