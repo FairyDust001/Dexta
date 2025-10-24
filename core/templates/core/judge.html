@@ -9,63 +9,31 @@
   <link rel="stylesheet" href="{% static 'core/judge.css' %}">
 </head>
 <body>
-    <!-- Navbar -->
-    <header class="navbar">
-        <a href="#"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
-        <nav>
-            <ul class="nav-links">
-                <li class="dropdown">
-                    <a href="#">Home <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#mission">Our Mission</a></li>
-                        <li><a href="#team">The Team</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="{% url 'test_prep' %}" class="active">Test Prep <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#mission">Principles</a></li>
-                        <li><a href="#team">Individual Series </a></li>
-                        <li><a href="#team">Team Decision Making</a></li>
-                        <li><a href="#team">Personal Financial Literacy</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="{% url 'judge' %}" >Digital Judge <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#team">Role Play Judge</a></li>
-                        <li><a href="#mission">Prepared Events Judge</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">AI Grader <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#team">Written Entry Grader</a></li>
-                        <li><a href="#mission">Presentation Grader</a></li>
-                    </ul>
-                </li>
-                <li><a href="#">Sign In </a></li>
-            </ul>
-        </nav>
-    </header>
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="{% url 'home' %}"> <h1 class="logo">DEXTA</h1> </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'test_prep' %}">Test Prep</a></li>
+        <li><a href="{% url 'judge' %}" class="active">Digital Judge</a></li>
+      </ul>
+    </nav>
+  </header>
 
+  <!-- Main Role Play Container -->
   <main class="judge-container">
-    <h1 class="judge-title">Digital Judge</h1>
-    <p class="judge-subtitle">Judge DEXTA</p>
+    <h1 class="judge-title">DECA Role Play Simulator</h1>
+    <p class="judge-subtitle">Practice as if in a real competition</p>
 
-    <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
-      <span class="plus">+</span>
-      <span class="upload-text">Click the + to upload your <strong>prepared event presentation</strong></span>
-      <input type="file" id="fileInput" accept=".pdf,.pptx" hidden>
-    </div>
-
-    <div class="select-container">
-      <p class="select-label">Select your Judge ▼</p>
-    </div>
-
-    <div id="result-container" class="result-container" style="display:none;">
-      <h2>Evaluation Result</h2>
-      <pre id="evaluation"></pre>
+    <div class="roleplay-container">
+      <div id="chat-box" class="chat-box"></div>
+      <textarea id="user-input" placeholder="Type your response..." rows="2"></textarea>
+      <div class="chat-buttons">
+        <button id="send-btn">Send</button>
+        <button id="speak-btn">Speak</button>
+        <button id="start-btn">Start Role Play</button>
+      </div>
     </div>
   </main>
 
@@ -74,25 +42,129 @@
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.body.classList.add("fade-in");
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const speakBtn = document.getElementById("speak-btn");
+    const startBtn = document.getElementById("start-btn");
+
+    let conversationHistory = [];
+
+    // Text-to-speech function
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 1;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Add messages to chat box
+    function addMessage(sender, text) {
+      const div = document.createElement("div");
+      div.className = sender;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Send message to Django roleplay endpoint
+    async function sendMessage(message) {
+      if (!message) return;
+
+      addMessage("user", message);
+      conversationHistory.push({role: "user", content: message});
+
+      try {
+        const res = await fetch("{% url 'roleplay_chat' %}", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ message: message, history: conversationHistory })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          addMessage("ai", "Error: " + data.error);
+        } else {
+          addMessage("ai", data.reply);
+          speakText(data.reply);
+          conversationHistory.push({role: "assistant", content: data.reply});
+        }
+      } catch (err) {
+        addMessage("ai", "There was an error processing your request.");
+      }
+    }
+
+    // Speech-to-text
+    speakBtn.addEventListener("click", () => {
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        alert("Your browser does not support speech recognition.");
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userInput.value = transcript;
+        sendMessage(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        alert("Error with speech recognition: " + event.error);
+      };
     });
 
-    document.getElementById("fileInput").addEventListener("change", async function () {
-      const file = this.files[0];
-      if (!file) return;
+    // Start initial scenario manually
+    startBtn.addEventListener("click", async () => {
+      addMessage("ai", "Generating your DECA Role Play scenario...");
+      startBtn.disabled = true;
 
-      const formData = new FormData();
-      formData.append("file", file);
+      try {
+        const res = await fetch("{% url 'roleplay_chat' %}", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ message: "Start a new DECA role play scenario for the user.", history: conversationHistory })
+        });
 
-      const response = await fetch("{% url 'evaluate_presentation' %}", {
-        method: "POST",
-        body: formData,
-      });
+        const data = await res.json();
 
-      const data = await response.json();
-      document.getElementById("result-container").style.display = "block";
-      document.getElementById("evaluation").textContent = data.result || "No response.";
+        if (data.error) {
+          addMessage("ai", "Error: " + data.error);
+        } else {
+          addMessage("ai", data.reply);
+          speakText(data.reply);
+          conversationHistory.push({role: "assistant", content: data.reply});
+        }
+      } catch (err) {
+        addMessage("ai", "There was an error generating the scenario.");
+      }
+    });
+
+    // Send message via button or Enter
+    sendBtn.addEventListener("click", () => {
+      const message = userInput.value.trim();
+      if (!message) return;
+      userInput.value = "";
+      sendMessage(message);
+    });
+
+    userInput.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        if (!message) return;
+        userInput.value = "";
+        sendMessage(message);
+      }
     });
   </script>
 </body>
