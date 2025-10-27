@@ -14,9 +14,37 @@
     <a href="{% url 'home' %}"> <h1 class="logo">DEXTA</h1> </a>
     <nav>
       <ul class="nav-links">
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'test_prep' %}">Test Prep</a></li>
-        <li><a href="{% url 'judge' %}" class="active">Digital Judge</a></li>
+        <li class="dropdown">
+          <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#mission">Our Mission</a></li>
+            <li><a href="#team">The Team</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="{% url 'test_prep' %}" class="active">Test Prep <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#mission">Principles</a></li>
+            <li><a href="#team">Individual Series </a></li>
+            <li><a href="#team">Team Decision Making</a></li>
+            <li><a href="#team">Personal Financial Literacy</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="" >Digital Judge <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'judge' %}">Role Play Judge</a></li>
+            <li><a href="#mission">Prepared Events Judge</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">AI Grader <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#team">Written Entry Grader</a></li>
+            <li><a href="#mission">Presentation Grader</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Sign In </a></li>
       </ul>
     </nav>
   </header>
@@ -26,13 +54,44 @@
     <h1 class="judge-title">DECA Role Play Simulator</h1>
     <p class="judge-subtitle">Practice as if in a real competition</p>
 
-    <div class="roleplay-container">
+    <!-- === PREP PHASE === -->
+    <div id="prep-phase" class="prep-phase">
+      <p class="instructions">
+        You’ll now receive your role play scenario. You will have <strong>10 minutes</strong> to prepare your response.
+        Please have a pencil and paper ready.
+      </p>
+
+      <label for="cluster-select">Select Role Play Cluster:</label>
+      <select id="cluster-select">
+        <option value="Business Administration Core">Business Administration Core</option>
+        <option value="Finance Cluster">Finance Cluster</option>
+        <option value="Hospitality & Tourism Cluster">Hospitality & Tourism Cluster</option>
+        <option value="Marketing Cluster">Marketing Cluster</option>
+        <option value="Entrepreneurship Cluster">Entrepreneurship Cluster</option>
+        <option value="Personal Financial Literacy">Personal Financial Literacy / Professional Selling</option>
+      </select>
+
+      <label for="judge-select">Select Judge:</label>
+      <select id="judge-select">
+        <!-- Options will be dynamically populated -->
+      </select>
+
+      <button id="generate-prompt-btn">Generate Prompt</button>
+      <div id="prompt-display" class="prompt-display"></div>
+
+      <div id="timer-container" class="hidden">
+        <p>Prep Time Remaining: <span id="timer">10:00</span></p>
+        <button id="continue-btn">Continue to Judge</button>
+      </div>
+    </div>
+
+    <!-- === JUDGE CHAT PHASE === -->
+    <div id="chat-phase" class="roleplay-container hidden">
       <div id="chat-box" class="chat-box"></div>
       <textarea id="user-input" placeholder="Type your response..." rows="2"></textarea>
       <div class="chat-buttons">
         <button id="send-btn">Send</button>
         <button id="speak-btn">Speak</button>
-        <button id="start-btn">Start Role Play</button>
       </div>
     </div>
   </main>
@@ -41,131 +100,229 @@
     <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
   </footer>
 
-  <script>
-    const chatBox = document.getElementById("chat-box");
-    const userInput = document.getElementById("user-input");
-    const sendBtn = document.getElementById("send-btn");
-    const speakBtn = document.getElementById("speak-btn");
-    const startBtn = document.getElementById("start-btn");
+<script>
+const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
+const speakBtn = document.getElementById("speak-btn");
+const generatePromptBtn = document.getElementById("generate-prompt-btn");
+const continueBtn = document.getElementById("continue-btn");
+const timerContainer = document.getElementById("timer-container");
+const timerDisplay = document.getElementById("timer");
+const promptDisplay = document.getElementById("prompt-display");
+const prepPhase = document.getElementById("prep-phase");
+const chatPhase = document.getElementById("chat-phase");
+const clusterSelect = document.getElementById("cluster-select");
+const judgeSelect = document.getElementById("judge-select");
 
-    let conversationHistory = [];
+let conversationHistory = [];
+let countdownInterval;
 
-    // Text-to-speech function
-    function speakText(text) {
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 1;
-        window.speechSynthesis.speak(utterance);
-      }
+// Example judges per cluster
+const JUDGES = {
+  "Business Administration Core": ["Judge Alice", "Judge Bob"],
+  "Finance Cluster": ["Judge Carol", "Judge Dave"],
+  "Hospitality & Tourism Cluster": ["Judge Eve", "Judge Frank"],
+  "Marketing Cluster": ["Judge Grace", "Judge Henry"],
+  "Entrepreneurship Cluster": ["Judge Ivy", "Judge Jack"],
+  "Personal Financial Literacy": ["Judge Kyle", "Judge Laura"]
+};
+
+// Populate judge dropdown based on cluster
+function populateJudges() {
+  const selectedCluster = clusterSelect.value;
+  judgeSelect.innerHTML = "";
+  JUDGES[selectedCluster].forEach(j => {
+    const option = document.createElement("option");
+    option.value = j;
+    option.textContent = j;
+    judgeSelect.appendChild(option);
+  });
+}
+clusterSelect.addEventListener("change", populateJudges);
+populateJudges(); // initial population
+
+// 🗣️ Text-to-speech
+function speakText(text) {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// 💬 Add chat-style messages
+function addMessage(sender, text) {
+  const messageWrapper = document.createElement("div");
+  messageWrapper.classList.add("message", sender);
+  const bubble = document.createElement("div");
+  bubble.classList.add("bubble");
+  bubble.textContent = text;
+  messageWrapper.appendChild(bubble);
+  chatBox.appendChild(messageWrapper);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// 🎯 Generate DECA Prompt
+generatePromptBtn.addEventListener("click", async () => {
+  const selectedCluster = clusterSelect.value;
+  const selectedJudge = judgeSelect.value;
+  promptDisplay.innerHTML = "<p><em>Generating your DECA Role Play prompt...</em></p>";
+  generatePromptBtn.disabled = true;
+
+  try {
+    const res = await fetch("/roleplay_chat/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Generate DECA role play prompt",
+        history: [],
+        cluster: selectedCluster,
+        judge: selectedJudge
+      }),
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+const formattedPrompt = `
+  <div class="deca-paper">
+    ${data.reply
+      .split("\n")
+      .map(line => {
+        line = line.trim();
+        if (!line) return ""; // skip empty lines
+
+        // Remove Markdown-style bold
+        line = line.replace(/\*\*(.*?)\*\*/g, "$1");
+
+        if (line.match(/^[A-Z\s]+$/)) return `<strong>${line}</strong>`; // bold uppercase headings
+        if (line.startsWith("- ")) return `<p class="bullet">${line}</p>`; // bullet points
+        if (line.match(/^\d+\./)) return `<p class="numbered">${line}</p>`; // numbered lists
+        return `<p>${line}</p>`; // normal text
+      })
+      .join("")}
+  </div>
+`;
+
+
+    promptDisplay.innerHTML = formattedPrompt;
+    speakText("Your DECA role-play prompt is ready. You have ten minutes to prepare.");
+    startTimer(10);
+  } catch (err) {
+    promptDisplay.innerHTML = `<p style='color:red;'>Error generating prompt: ${err}</p>`;
+    generatePromptBtn.disabled = false;
+  }
+});
+
+
+
+// Timer
+function startTimer(minutes) {
+  let time = minutes * 60;
+  timerContainer.classList.remove("hidden");
+  updateTimerDisplay();
+
+  countdownInterval = setInterval(() => {
+    time--;
+    updateTimerDisplay();
+    if (time <= 0) {
+      clearInterval(countdownInterval);
+      timerDisplay.textContent = "⏰ Time’s up!";
+      continueBtn.classList.remove("hidden");
+    }
+  }, 1000);
+
+  continueBtn.classList.remove("hidden");
+
+  function updateTimerDisplay() {
+    const mins = Math.floor(time / 60);
+    const secs = time % 60;
+    timerDisplay.textContent = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  }
+}
+
+// Continue to judge chat
+continueBtn.addEventListener("click", () => {
+  clearInterval(countdownInterval);
+  prepPhase.classList.add("hidden");
+  chatPhase.classList.remove("hidden");
+  const introMessage = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
+  addMessage("ai", introMessage);
+  speakText(introMessage);
+});
+
+// Send messages
+async function sendMessage(message) {
+  if (!message) return;
+  addMessage("user", message);
+  conversationHistory.push({ role: "user", content: message });
+
+  try {
+    const res = await fetch("/roleplay_chat/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: message, history: conversationHistory, cluster: clusterSelect.value, judge: judgeSelect.value }),
+    });
+
+    const data = await res.json();
+    if (data.error) {
+      addMessage("ai", "⚠️ Error: " + data.error);
+      return;
     }
 
-    // Add messages to chat box
-    function addMessage(sender, text) {
-      const div = document.createElement("div");
-      div.className = sender;
-      div.textContent = text;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    addMessage("ai", data.reply);
+    speakText(data.reply);
+    conversationHistory.push({ role: "assistant", content: data.reply });
+  } catch (err) {
+    addMessage("ai", "There was an error processing your request.");
+  }
+}
 
-    // Send message to Django roleplay endpoint
-    async function sendMessage(message) {
-      if (!message) return;
+sendBtn.addEventListener("click", () => {
+  const message = userInput.value.trim();
+  if (!message) return;
+  userInput.value = "";
+  sendMessage(message);
+});
 
-      addMessage("user", message);
-      conversationHistory.push({role: "user", content: message});
+userInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    const message = userInput.value.trim();
+    if (!message) return;
+    userInput.value = "";
+    sendMessage(message);
+  }
+});
 
-      try {
-        const res = await fetch("{% url 'roleplay_chat' %}", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ message: message, history: conversationHistory })
-        });
+// Speech-to-text
+speakBtn.addEventListener("click", () => {
+  if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+    alert("Your browser does not support speech recognition.");
+    return;
+  }
 
-        const data = await res.json();
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.start();
 
-        if (data.error) {
-          addMessage("ai", "Error: " + data.error);
-        } else {
-          addMessage("ai", data.reply);
-          speakText(data.reply);
-          conversationHistory.push({role: "assistant", content: data.reply});
-        }
-      } catch (err) {
-        addMessage("ai", "There was an error processing your request.");
-      }
-    }
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    userInput.value = transcript;
+    sendMessage(transcript);
+  };
 
-    // Speech-to-text
-    speakBtn.addEventListener("click", () => {
-      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-        alert("Your browser does not support speech recognition.");
-        return;
-      }
+  recognition.onerror = (event) => {
+    alert("Speech recognition error: " + event.error);
+  };
+});
+</script>
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.start();
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        userInput.value = transcript;
-        sendMessage(transcript);
-      };
-
-      recognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
-        alert("Error with speech recognition: " + event.error);
-      };
-    });
-
-    // Start initial scenario manually
-    startBtn.addEventListener("click", async () => {
-      addMessage("ai", "Generating your DECA Role Play scenario...");
-      startBtn.disabled = true;
-
-      try {
-        const res = await fetch("{% url 'roleplay_chat' %}", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ message: "Start a new DECA role play scenario for the user.", history: conversationHistory })
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          addMessage("ai", "Error: " + data.error);
-        } else {
-          addMessage("ai", data.reply);
-          speakText(data.reply);
-          conversationHistory.push({role: "assistant", content: data.reply});
-        }
-      } catch (err) {
-        addMessage("ai", "There was an error generating the scenario.");
-      }
-    });
-
-    // Send message via button or Enter
-    sendBtn.addEventListener("click", () => {
-      const message = userInput.value.trim();
-      if (!message) return;
-      userInput.value = "";
-      sendMessage(message);
-    });
-
-    userInput.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        const message = userInput.value.trim();
-        if (!message) return;
-        userInput.value = "";
-        sendMessage(message);
-      }
-    });
-  </script>
 </body>
 </html>
