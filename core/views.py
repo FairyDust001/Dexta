@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 from django.conf import settings
 import json
+import fitz  # PyMuPDF
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
@@ -28,7 +29,7 @@ def roleplay_chat(request):
         cluster = data.get("cluster", "Business Administration Core")
         judge = data.get("judge", "Default Judge")
 
-        # Build GPT prompt
+        # Build GPT prompt for roleplay
         prompt = f"""
 You are a DECA Role Play prompt generator.
 Generate a high school DECA Role Play scenario with official DECA formatting.
@@ -52,10 +53,8 @@ Instructions:
 - Event Situation must start with: "You are to assume the role of..."
 - Tailor the scenario for the judge "{judge}" and cluster "{cluster}".
 - Respond as plain text but formatted exactly as a DECA role play paper.
-        
         """
 
-        # Call GPT-5-mini without unsupported parameters
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
@@ -70,3 +69,62 @@ Instructions:
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+
+# === PDF AI Grader ===
+
+def extract_text_from_pdf(file):
+    """Extract all text from uploaded PDF"""
+    doc = fitz.open(stream=file.read(), filetype="pdf")
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    return text
+
+@csrf_exempt
+def upload_pdf(request):
+    """
+    Upload PDF, extract text, and grade it with GPT-5 based on rubric.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        pdf_file = request.FILES.get('file')
+        rubric = request.POST.get("rubric", "Use standard DECA grading rubric.")
+
+        if not pdf_file:
+            return JsonResponse({"error": "No PDF file uploaded."}, status=400)
+
+        # Extract text from PDF
+        pdf_text = extract_text_from_pdf(pdf_file)
+
+        # GPT prompt for grading
+        prompt = f"""
+You are a DECA written entry judge.
+Grade the following written entry using this rubric:
+{rubric}
+
+Written Entry:
+{pdf_text}
+
+Provide:
+- Section scores
+- Detailed feedback per criterion
+- Total score out of 100
+Respond in clear, structured format.
+"""
+
+        response = client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert DECA judge."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.4
+        )
+
+        feedback = response.choices[0].message.content.strip()
+        return JsonResponse({"feedback": feedback})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

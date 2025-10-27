@@ -312,7 +312,7 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-color: #9c5fd6;
     background: rgba(255, 255, 255, 0.05);
-    color: #5a00ff;
+    color: #ffffff;
     font-size: 0.95rem;
     outline: none;
     transition: border 0.3s ease, background 0.3s ease;
