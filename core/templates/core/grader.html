@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEXTA | AI Grader</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'core/grader.css' %}">
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="{% url 'home' %}"><h1 class="logo">DEXTA</h1></a>
+    <nav>
+      <ul class="nav-links">
+        <li class="dropdown">
+          <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#mission">Our Mission</a></li>
+            <li><a href="#team">The Team</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="{% url 'test_prep' %}">Test Prep <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#mission">Principles</a></li>
+            <li><a href="#team">Individual Series </a></li>
+            <li><a href="#team">Team Decision Making</a></li>
+            <li><a href="#team">Personal Financial Literacy</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="">Digital Judge <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'judge' %}">Role Play Judge</a></li>
+            <li><a href="#mission">Prepared Events Judge</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#">AI Grader <span class="arrow">&#9662;</span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'grader' %}">Written Entry Grader</a></li>
+            <li><a href="#mission">Presentation Grader</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Sign In</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p>Generating your DECA Written Entry Evaluation...</p>
+    </div>
+  </div>
+
+  <!-- Main Grader Section -->
+  <main>
+    <section class="upload-section">
+      <div class="upload-container">
+        <h1>DEXTA AI Grader</h1>
+        <p>Upload your DECA written entry and receive instant AI feedback aligned with official guidelines.</p>
+
+        <form id="graderForm" enctype="multipart/form-data" class="upload-box">
+          <label>Upload Written Entry (PDF)</label>
+          <input type="file" id="pdfFile" name="file" accept=".pdf" required>
+
+          <label>Optional: Upload Rubric (PDF)</label>
+          <input type="file" id="rubricFile" name="rubric" accept=".pdf">
+
+          <button type="submit">Submit for Evaluation</button>
+        </form>
+
+        <div id="resultBox" class="result-box"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("graderForm");
+    const resultBox = document.getElementById("resultBox");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("file", document.getElementById("pdfFile").files[0]);
+      const rubricFile = document.getElementById("rubricFile").files[0];
+      if (rubricFile) formData.append("rubric", rubricFile);
+
+      // Show loading overlay
+      loadingOverlay.style.display = "flex";
+      resultBox.style.display = "none";
+
+      try {
+        const response = await fetch("/upload_pdf/", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+
+        // Hide overlay
+        loadingOverlay.style.display = "none";
+
+        // Show feedback
+        resultBox.style.display = "block";
+        if (data.feedback) {
+          resultBox.innerHTML = `<strong>AI Feedback:</strong><br><pre>${data.feedback}</pre>`;
+        } else {
+          resultBox.innerHTML = `<strong>Error:</strong> ${data.error}`;
+        }
+      } catch (err) {
+        loadingOverlay.style.display = "none";
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "❌ Failed to grade. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>

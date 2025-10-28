@@ -8,6 +8,7 @@ urlpatterns = [
     # path('roleplay/', views.roleplay_chat, name='roleplay_chat'),  # <-- new view
     path("roleplay_chat/", views.roleplay_chat, name="roleplay_chat"),  # ✅ this must exist
     path('upload_pdf/', views.upload_pdf, name='upload_pdf'),
+    path('grader/', views.grader, name='grader'),  # ✅ added
 
 ]
 

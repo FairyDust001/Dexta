@@ -3,11 +3,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 from django.conf import settings
-import json
 import fitz  # PyMuPDF
+import json
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
+# --- Pages ---
 def home(request):
     return render(request, "core/home.html")
 
@@ -17,19 +18,22 @@ def test_prep(request):
 def judge(request):
     return render(request, "core/judge.html")
 
+def grader(request):
+    return render(request, "core/grader.html")
+
+
+# --- Roleplay Chat (existing) ---
 @csrf_exempt
 def roleplay_chat(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
-
     try:
         data = json.loads(request.body)
         user_input = data.get("message", "")
         conversation_history = data.get("history", [])
         cluster = data.get("cluster", "Business Administration Core")
-        judge = data.get("judge", "Default Judge")
+        judge_name = data.get("judge", "Default Judge")
 
-        # Build GPT prompt for roleplay
         prompt = f"""
 You are a DECA Role Play prompt generator.
 Generate a high school DECA Role Play scenario with official DECA formatting.
@@ -51,7 +55,7 @@ Instructions:
 - Use dashes or numbering for sub-points.
 - Keep spacing consistent and easy to read.
 - Event Situation must start with: "You are to assume the role of..."
-- Tailor the scenario for the judge "{judge}" and cluster "{cluster}".
+- Tailor the scenario for the judge "{judge_name}" and cluster "{cluster}".
 - Respond as plain text but formatted exactly as a DECA role play paper.
         """
 
@@ -62,7 +66,6 @@ Instructions:
                 {"role": "user", "content": prompt}
             ]
         )
-
         ai_message = response.choices[0].message.content.strip()
         return JsonResponse({"reply": ai_message})
 
@@ -70,39 +73,41 @@ Instructions:
         return JsonResponse({"error": str(e)}, status=500)
 
 
-# === PDF AI Grader ===
-
+# --- PDF Grader ---
 def extract_text_from_pdf(file):
-    """Extract all text from uploaded PDF"""
+    """Extract all text from a PDF file"""
     doc = fitz.open(stream=file.read(), filetype="pdf")
     text = ""
     for page in doc:
         text += page.get_text()
     return text
 
+
 @csrf_exempt
 def upload_pdf(request):
     """
-    Upload PDF, extract text, and grade it with GPT-5 based on rubric.
+    Upload PDF(s), extract text, and return AI feedback based on DECA rubric.
     """
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
     try:
         pdf_file = request.FILES.get('file')
-        rubric = request.POST.get("rubric", "Use standard DECA grading rubric.")
+        rubric_file = request.FILES.get('rubric')
 
         if not pdf_file:
             return JsonResponse({"error": "No PDF file uploaded."}, status=400)
 
-        # Extract text from PDF
         pdf_text = extract_text_from_pdf(pdf_file)
 
-        # GPT prompt for grading
+        rubric_text = "Use standard DECA grading rubric."
+        if rubric_file:
+            rubric_text = extract_text_from_pdf(rubric_file)
+
         prompt = f"""
 You are a DECA written entry judge.
 Grade the following written entry using this rubric:
-{rubric}
+{rubric_text}
 
 Written Entry:
 {pdf_text}
@@ -111,16 +116,16 @@ Provide:
 - Section scores
 - Detailed feedback per criterion
 - Total score out of 100
-Respond in clear, structured format.
+Respond in clear, structured format suitable for high school students.
 """
 
+        # Removed temperature parameter
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
                 {"role": "system", "content": "You are an expert DECA judge."},
                 {"role": "user", "content": prompt}
-            ],
-            temperature=0.4
+            ]
         )
 
         feedback = response.choices[0].message.content.strip()
