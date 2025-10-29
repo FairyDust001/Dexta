@@ -86,7 +86,8 @@ def extract_text_from_pdf(file):
 @csrf_exempt
 def upload_pdf(request):
     """
-    Upload PDF(s), extract text, and return AI feedback based on DECA rubric.
+    Upload PDF(s), extract text, and return AI feedback based on DECA rubric. Only evaluate WRITTEN ENTRY EVALUATION FORM on the DECA rubric uploaded.
+    This feedback can then be referenced in the chat bot.
     """
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
@@ -99,7 +100,6 @@ def upload_pdf(request):
             return JsonResponse({"error": "No PDF file uploaded."}, status=400)
 
         pdf_text = extract_text_from_pdf(pdf_file)
-
         rubric_text = "Use standard DECA grading rubric."
         if rubric_file:
             rubric_text = extract_text_from_pdf(rubric_file)
@@ -115,11 +115,10 @@ Written Entry:
 Provide:
 - Section scores
 - Detailed feedback per criterion
-- Total score out of 100
+- Total score out of 60
 Respond in clear, structured format suitable for high school students.
 """
 
-        # Removed temperature parameter
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
@@ -129,6 +128,8 @@ Respond in clear, structured format suitable for high school students.
         )
 
         feedback = response.choices[0].message.content.strip()
+
+        # Return feedback so it can also be injected into the chat
         return JsonResponse({"feedback": feedback})
 
     except Exception as e:
