@@ -72,7 +72,9 @@
       </select>
 
       <label for="judge-select">Select Judge:</label>
-      <select id="judge-select"></select>
+      <select id="judge-select">
+        <!-- Options will be dynamically populated -->
+      </select>
 
       <button id="generate-prompt-btn">Generate Prompt</button>
       <div id="prompt-display" class="prompt-display"></div>
@@ -103,7 +105,7 @@ const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 const speakBtn = document.getElementById("speak-btn");
-let generatePromptBtn = document.getElementById("generate-prompt-btn");
+const generatePromptBtn = document.getElementById("generate-prompt-btn");
 const continueBtn = document.getElementById("continue-btn");
 const timerContainer = document.getElementById("timer-container");
 const timerDisplay = document.getElementById("timer");
@@ -126,7 +128,7 @@ const JUDGES = {
   "Personal Financial Literacy": ["Judge Kyle", "Judge Laura"]
 };
 
-// Populate judge dropdown
+// Populate judge dropdown based on cluster
 function populateJudges() {
   const selectedCluster = clusterSelect.value;
   judgeSelect.innerHTML = "";
@@ -138,9 +140,9 @@ function populateJudges() {
   });
 }
 clusterSelect.addEventListener("change", populateJudges);
-populateJudges();
+populateJudges(); // initial population
 
-// Text-to-speech
+// 🗣️ Text-to-speech
 function speakText(text) {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
@@ -151,7 +153,7 @@ function speakText(text) {
   }
 }
 
-// Add chat message
+// 💬 Add chat-style messages
 function addMessage(sender, text) {
   const messageWrapper = document.createElement("div");
   messageWrapper.classList.add("message", sender);
@@ -163,11 +165,11 @@ function addMessage(sender, text) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Generate DECA prompt
+// 🎯 Generate DECA Prompt
 generatePromptBtn.addEventListener("click", async () => {
   const selectedCluster = clusterSelect.value;
   const selectedJudge = judgeSelect.value;
-  promptDisplay.innerHTML = "<p><em>Please hold tight while your full prompt loads. <br> Generating your DECA Role Play prompt...</em></p>";
+  promptDisplay.innerHTML = "<p><em>Generating your DECA Role Play prompt...</em></p>";
   generatePromptBtn.disabled = true;
 
   try {
@@ -185,46 +187,37 @@ generatePromptBtn.addEventListener("click", async () => {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    const formattedPrompt = `
-      <div class="deca-paper">
-        ${data.reply
-          .split("\n")
-          .map(line => {
-            line = line.trim();
-            if (!line) return "";
-            line = line.replace(/\*\*(.*?)\*\*/g, "$1");
-            if (line.match(/^[A-Z\s]+$/)) return `<strong>${line}</strong>`;
-            if (line.startsWith("- ")) return `<p class="bullet">${line}</p>`;
-            if (line.match(/^\d+\./)) return `<p class="numbered">${line}</p>`;
-            return `<p>${line}</p>`;
-          })
-          .join("")}
-      </div>
-    `;
+const formattedPrompt = `
+  <div class="deca-paper">
+    ${data.reply
+      .split("\n")
+      .map(line => {
+        line = line.trim();
+        if (!line) return ""; // skip empty lines
+
+        // Remove Markdown-style bold
+        line = line.replace(/\*\*(.*?)\*\*/g, "$1");
+
+        if (line.match(/^[A-Z\s]+$/)) return `<strong>${line}</strong>`; // bold uppercase headings
+        if (line.startsWith("- ")) return `<p class="bullet">${line}</p>`; // bullet points
+        if (line.match(/^\d+\./)) return `<p class="numbered">${line}</p>`; // numbered lists
+        return `<p>${line}</p>`; // normal text
+      })
+      .join("")}
+  </div>
+`;
+
 
     promptDisplay.innerHTML = formattedPrompt;
     speakText("Your DECA role-play prompt is ready. You have ten minutes to prepare.");
     startTimer(10);
-
-    // 🆕 Change Generate Prompt → Restart Roleplay
-    generatePromptBtn.textContent = "Restart Roleplay";
-    generatePromptBtn.disabled = false;
-
-    // Remove previous event listener safely
-    const newBtn = generatePromptBtn.cloneNode(true);
-    generatePromptBtn.parentNode.replaceChild(newBtn, generatePromptBtn);
-    generatePromptBtn = newBtn;
-
-    // Add refresh functionality
-    generatePromptBtn.addEventListener("click", () => {
-      location.reload();
-    });
-
   } catch (err) {
     promptDisplay.innerHTML = `<p style='color:red;'>Error generating prompt: ${err}</p>`;
     generatePromptBtn.disabled = false;
   }
 });
+
+
 
 // Timer
 function startTimer(minutes) {

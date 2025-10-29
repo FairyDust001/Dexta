@@ -7,6 +7,7 @@
   <title>DEXTA | AI Grader</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'core/grader.css' %}">
+
 </head>
 <body>
   <!-- Navbar -->
@@ -16,7 +17,7 @@
       <ul class="nav-links">
         <li class="dropdown"><a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a></li>
         <li class="dropdown"><a href="{% url 'test_prep' %}" class="active">Test Prep <span class="arrow">&#9662;</span></a></li>
-        <li class="dropdown"><a href="">Digital Judge <span class="arrow">&#9662;</span></a></li>
+        <li class="dropdown"><a href="{% url 'grader' %}">Digital Judge <span class="arrow">&#9662;</span></a></li>
         <li class="dropdown"><a href="#">AI Grader <span class="arrow">&#9662;</span></a></li>
         <li><a href="#">Sign In</a></li>
       </ul>
@@ -69,7 +70,7 @@
     let chatHistory = [];
     let initialFeedback = "";
 
-    // Get CSRF token from cookie
+    // Get CSRF token
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== '') {
@@ -87,17 +88,20 @@
     const csrfToken = getCookie('csrftoken');
 
     function updateChatBox() {
-      const messages = [];
+      const messagesHTML = [];
+
       if(initialFeedback) {
-        messages.push(`<div class="message ai"><strong>AI Grader:</strong> ${initialFeedback}</div>`);
+        messagesHTML.push(`<div class="message ai fade-in"><strong>AI Grader:</strong> ${initialFeedback}</div>`);
       }
+
       chatHistory.forEach(msg => {
-        const roleClass = msg.role === "ai" ? "ai" : "user";
+        const roleClass = msg.role === "ai" ? "ai fade-in" : "user fade-in";
         const label = msg.role === "ai" ? "AI Grader" : "You";
-        messages.push(`<div class="message ${roleClass}"><strong>${label}:</strong> ${msg.content}</div>`);
+        messagesHTML.push(`<div class="message ${roleClass}"><strong>${label}:</strong> ${msg.content}</div>`);
       });
-      chatBox.innerHTML = messages.join("");
-      chatBox.scrollTop = chatBox.scrollHeight;
+
+      chatBox.innerHTML = messagesHTML.join("");
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
     }
 
     async function sendMessage(message) {
@@ -114,11 +118,8 @@
           body: JSON.stringify({message: message, history: chatHistory})
         });
         const data = await response.json();
-        if(data.reply) {
-          chatHistory.push({role: "ai", content: data.reply});
-        } else if(data.error) {
-          chatHistory.push({role: "ai", content: `❌ Error: ${data.error}`});
-        }
+        if(data.reply) chatHistory.push({role: "ai", content: data.reply});
+        else if(data.error) chatHistory.push({role: "ai", content: `❌ Error: ${data.error}`});
         updateChatBox();
       } catch(err) {
         chatHistory.push({role: "ai", content: `❌ Network error: ${err.message}`});
@@ -129,11 +130,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fileInput = document.getElementById("pdfFile");
-      if(!fileInput.files.length) {
-        chatHistory.push({role: "ai", content: "❌ No PDF selected."});
-        updateChatBox();
-        return;
-      }
+      if(!fileInput.files.length) { chatHistory.push({role: "ai", content: "❌ No PDF selected."}); updateChatBox(); return; }
 
       const formData = new FormData();
       formData.append("file", fileInput.files[0]);
@@ -155,7 +152,6 @@
         if(data.feedback) {
           initialFeedback = data.feedback;
           updateChatBox();
-
           chatInput.disabled = false;
           chatSend.disabled = false;
           chatInput.placeholder = "Ask the AI grader for help...";
@@ -178,9 +174,7 @@
       if(message) { sendMessage(message); chatInput.value = ""; }
     });
 
-    chatInput.addEventListener("keypress", e => {
-      if(e.key === "Enter") chatSend.click();
-    });
+    chatInput.addEventListener("keypress", e => { if(e.key === "Enter") chatSend.click(); });
 
     restartBtn.addEventListener("click", () => {
       chatHistory = [];
@@ -196,3 +190,4 @@
   </script>
 </body>
 </html>
+

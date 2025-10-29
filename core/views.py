@@ -61,21 +61,15 @@ Tailor scenario for judge "{judge_name}" and cluster "{cluster}".
 Respond as plain text formatted like an official DECA role play.
         """
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-5-mini",
-                messages=[
-                    {"role": "system", "content": "You are an expert DECA prompt generator."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            ai_message = response.choices[0].message.content.strip()
-            return JsonResponse({"reply": ai_message})
-
-        except Exception as e:
-            error_msg = f"OpenAI API failed: {str(e)}\n{traceback.format_exc()}"
-            logger.error(error_msg)
-            return JsonResponse({"error": error_msg}, status=500)
+        response = client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert DECA prompt generator."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        ai_message = response.choices[0].message.content.strip()
+        return JsonResponse({"reply": ai_message})
 
     except Exception as e:
         error_msg = f"Failed to generate roleplay: {str(e)}\n{traceback.format_exc()}"
@@ -140,23 +134,56 @@ Provide:
 Respond in clear, structured format suitable for high school students.
         """
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-5-mini",
-                messages=[
-                    {"role": "system", "content": "You are an expert DECA judge."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            feedback = response.choices[0].message.content.strip()
-            return JsonResponse({"feedback": feedback})
-
-        except Exception as e:
-            error_msg = f"OpenAI API failed: {str(e)}\n{traceback.format_exc()}"
-            logger.error(error_msg)
-            return JsonResponse({"error": error_msg}, status=500)
+        response = client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert DECA judge."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        feedback = response.choices[0].message.content.strip()
+        return JsonResponse({"feedback": feedback})
 
     except Exception as e:
         error_msg = f"Unexpected server error: {str(e)}\n{traceback.format_exc()}"
+        logger.error(error_msg)
+        return JsonResponse({"error": error_msg}, status=500)
+
+
+# ===================== AI GRADER CHAT =====================
+@csrf_exempt
+def chat_with_grader(request):
+    """
+    Handles follow-up conversation after the PDF has been graded.
+    Uses chat history to continue context-aware discussion with AI grader.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        message = data.get("message", "")
+        history = data.get("history", [])
+
+        # Build prompt including conversation history
+        prompt = "You are an AI DECA grader. Continue the conversation with the student based on the following history:\n"
+        for msg in history:
+            role = "Student" if msg["role"] == "user" else "AI Grader"
+            prompt += f"{role}: {msg['content']}\n"
+        prompt += f"Student: {message}\nAI Grader:"
+
+        response = client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert DECA judge."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        ai_reply = response.choices[0].message.content.strip()
+        return JsonResponse({"reply": ai_reply})
+
+    except Exception as e:
+        error_msg = f"Failed to continue chat: {str(e)}\n{traceback.format_exc()}"
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)

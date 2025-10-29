@@ -2,13 +2,19 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Pages
     path("", views.home, name="home"),
-    path('test-prep/', views.test_prep, name='test_prep'),
-    path('judge/', views.judge, name='judge'),
-    # path('roleplay/', views.roleplay_chat, name='roleplay_chat'),  # <-- new view
-    path("roleplay_chat/", views.roleplay_chat, name="roleplay_chat"),  # ✅ this must exist
-    path('upload_pdf/', views.upload_pdf, name='upload_pdf'),
-    path('grader/', views.grader, name='grader'),  # ✅ added
+    path("test-prep/", views.test_prep, name="test_prep"),
+    path("judge/", views.judge, name="judge"),
+    path("grader/", views.grader, name="grader"),
 
+    # Roleplay Chat (DECA scenarios)
+    path("roleplay_chat/", views.roleplay_chat, name="roleplay_chat"),
+
+    # PDF upload for grading
+    path("upload_pdf/", views.upload_pdf, name="upload_pdf"),
+
+    # AI Grader follow-up chat
+    path("chat_with_grader/", views.chat_with_grader, name="chat_with_grader"),
 ]
 
