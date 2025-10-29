@@ -5,10 +5,17 @@ from openai import OpenAI
 from django.conf import settings
 import fitz  # PyMuPDF
 import json
+import logging
+import traceback
 
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Initialize OpenAI client
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-# --- Pages ---
+# ===================== PAGES =====================
 def home(request):
     return render(request, "core/home.html")
 
@@ -22,11 +29,12 @@ def grader(request):
     return render(request, "core/grader.html")
 
 
-# --- Roleplay Chat (existing) ---
+# ===================== ROLEPLAY CHAT =====================
 @csrf_exempt
 def roleplay_chat(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
+
     try:
         data = json.loads(request.body)
         user_input = data.get("message", "")
@@ -42,67 +50,80 @@ Include these sections clearly with bold headings and proper spacing:
 1) EVENT TITLE
 2) PARTICIPANT INSTRUCTIONS
 3) 21ST CENTURY SKILLS:
-  - Critical Thinking – Reason effectively and use systems thinking.
-  - Problem Solving – Make judgments and decisions and solve problems.
-  - Communication and Collaboration – Communicate clearly and show evidence of collaboration.
-  - Creativity and Innovation – Show evidence of creativity.
+  - Critical Thinking
+  - Problem Solving
+  - Communication and Collaboration
+  - Creativity and Innovation
 4) PERFORMANCE INDICATORS
 5) EVENT SITUATION
 
-Instructions:
-- Use uppercase headings for each section.
-- Use bullet points for instructions, skills, and performance indicators.
-- Use dashes or numbering for sub-points.
-- Keep spacing consistent and easy to read.
-- Event Situation must start with: "You are to assume the role of..."
-- Tailor the scenario for the judge "{judge_name}" and cluster "{cluster}".
-- Respond as plain text but formatted exactly as a DECA role play paper.
+Tailor scenario for judge "{judge_name}" and cluster "{cluster}".
+Respond as plain text formatted like an official DECA role play.
         """
 
-        response = client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert DECA prompt generator."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        ai_message = response.choices[0].message.content.strip()
-        return JsonResponse({"reply": ai_message})
+        try:
+            response = client.chat.completions.create(
+                model="gpt-5-mini",
+                messages=[
+                    {"role": "system", "content": "You are an expert DECA prompt generator."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            ai_message = response.choices[0].message.content.strip()
+            return JsonResponse({"reply": ai_message})
+
+        except Exception as e:
+            error_msg = f"OpenAI API failed: {str(e)}\n{traceback.format_exc()}"
+            logger.error(error_msg)
+            return JsonResponse({"error": error_msg}, status=500)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        error_msg = f"Failed to generate roleplay: {str(e)}\n{traceback.format_exc()}"
+        logger.error(error_msg)
+        return JsonResponse({"error": error_msg}, status=500)
 
 
-# --- PDF Grader ---
+# ===================== PDF GRADER =====================
 def extract_text_from_pdf(file):
-    """Extract all text from a PDF file"""
-    doc = fitz.open(stream=file.read(), filetype="pdf")
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    return text
+    """Extract all text from PDF"""
+    try:
+        doc = fitz.open(stream=file.read(), filetype="pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        if not text.strip():
+            raise ValueError("PDF contains no extractable text.")
+        return text
+    except Exception as e:
+        raise ValueError(f"Failed to read PDF: {str(e)}")
 
 
 @csrf_exempt
 def upload_pdf(request):
-    """
-    Upload PDF(s), extract text, and return AI feedback based on DECA rubric. Only evaluate WRITTEN ENTRY EVALUATION FORM on the DECA rubric uploaded.
-    This feedback can then be referenced in the chat bot.
-    """
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
     try:
-        pdf_file = request.FILES.get('file')
-        rubric_file = request.FILES.get('rubric')
-
+        pdf_file = request.FILES.get("file")
         if not pdf_file:
             return JsonResponse({"error": "No PDF file uploaded."}, status=400)
 
-        pdf_text = extract_text_from_pdf(pdf_file)
+        try:
+            pdf_text = extract_text_from_pdf(pdf_file)
+        except ValueError as e:
+            logger.error(f"PDF extraction failed: {str(e)}\n{traceback.format_exc()}")
+            return JsonResponse({"error": str(e)}, status=400)
+
+        # Optional rubric
         rubric_text = "Use standard DECA grading rubric."
+        rubric_file = request.FILES.get("rubric")
         if rubric_file:
-            rubric_text = extract_text_from_pdf(rubric_file)
+            try:
+                rubric_candidate = extract_text_from_pdf(rubric_file)
+                if rubric_candidate.strip():
+                    rubric_text = rubric_candidate
+            except ValueError:
+                logger.warning("Rubric PDF extraction failed. Using default rubric.")
 
         prompt = f"""
 You are a DECA written entry judge.
@@ -117,20 +138,25 @@ Provide:
 - Detailed feedback per criterion
 - Total score out of 60
 Respond in clear, structured format suitable for high school students.
-"""
+        """
 
-        response = client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert DECA judge."},
-                {"role": "user", "content": prompt}
-            ]
-        )
+        try:
+            response = client.chat.completions.create(
+                model="gpt-5-mini",
+                messages=[
+                    {"role": "system", "content": "You are an expert DECA judge."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            feedback = response.choices[0].message.content.strip()
+            return JsonResponse({"feedback": feedback})
 
-        feedback = response.choices[0].message.content.strip()
-
-        # Return feedback so it can also be injected into the chat
-        return JsonResponse({"feedback": feedback})
+        except Exception as e:
+            error_msg = f"OpenAI API failed: {str(e)}\n{traceback.format_exc()}"
+            logger.error(error_msg)
+            return JsonResponse({"error": error_msg}, status=500)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        error_msg = f"Unexpected server error: {str(e)}\n{traceback.format_exc()}"
+        logger.error(error_msg)
+        return JsonResponse({"error": error_msg}, status=500)
