@@ -1,4 +1,4 @@
-/* ================= RESET ================= */
+/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -11,13 +11,12 @@ html, body {
   color: white;
   background: radial-gradient(circle at top left, #03001e, #000, #01134e);
   overflow-x: hidden;
-  background-image: url("../core/test_prepbg.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-size: cover;       /* fill the entire viewport */
+  background-position: center;  /* center the image */
+  background-repeat: no-repeat; /* no tiling */
 }
 
-/* ================= NAVBAR ================= */
+/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -30,41 +29,58 @@ html, body {
   left: 0;
   z-index: 1000;
   text-align: center;
-  background-color: transparent;
 }
 
+/* Logo Styling with reflection */
 .logo {
   font-size: 1.4rem;
   font-weight: 700;
   color: rgb(220, 220, 220);
   letter-spacing: 1px;
   opacity: 0.95;
-  -webkit-box-reflect: below .7px linear-gradient(transparent, rgba(0,0,0,0.6));
+  -webkit-box-reflect: below .7px
+      linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+a:active {
+text-decoration: none; 
 }
 
-a:link, a:active {
+a:link {
   text-decoration: none;
 }
 
+
+
+
+/* Nav links */
 .nav-links {
   list-style: none;
   display: flex;
   gap: 25px;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
+  justify-content: center;  /* centers horizontally */
+  padding: 0;               /* remove default ul padding */
+  margin: 0; 
 }
 
 .nav-links li a {
   color: white;
   text-decoration: none;
   font-weight: 500;
+
 }
 
 .nav-links li a:hover {
-  color: rgb(156, 95, 214);
+  font-weight: 500;
+  color: rgb(156, 95, 214); /* always stay white */
   transition: color 0.3s ease;
+
 }
+
+/*.nav-links li a:visited,
+.nav-links li a:active {
+  color: white;
+
+} */
 
 .arrow {
   font-size: 0.7rem;
@@ -80,14 +96,14 @@ a:link, a:active {
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%); /* centers directly under Home */
   background: #1e1e1e;
   list-style: none;
   padding: 10px 0;
   margin: 0;
   border-radius: 8px;
   min-width: 160px;
-  text-align: center;
+  text-align: center; /* centers text inside dropdown */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -110,16 +126,22 @@ a:link, a:active {
   display: block;
 }
 
+.signin-btn {
+  background: linear-gradient(90deg, #5a00ff, #ff00f7);
+  padding: 8px 18px;
+  border-radius: 8px;
+  color: white !important;
+  font-weight: 600;
+}
 /* ================= MAIN / CENTERING ================= */
 main {
   flex: 1;
   display: flex;
   justify-content: center;
-  padding-top: 120px;
+  padding-top: 140px;
   padding-bottom: 50px;
   width: 100%;
   min-height: 100vh;
-  overflow-y: auto;
 }
 
 /* ================= CHAT CONTAINER ================= */
@@ -133,19 +155,17 @@ main {
   background: linear-gradient(145deg, rgba(30,30,30,0.85), rgba(0,0,0,0.85));
   border-radius: 20px;
   padding: 35px;
-  box-shadow: 0 0 30px rgb(255, 136, 219);
+  box-shadow: 0 0 30px rgba(255, 136, 219, 0.7);
   backdrop-filter: blur(12px);
+  transition: all 0.3s ease-in-out;
 }
 
 .chat-container h1 {
-  color: white;
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
   text-align: center;
+  font-size: 2.5rem;
 }
 
 .chat-container p {
-  color: white;
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -160,7 +180,6 @@ main {
 .upload-box label {
   font-weight: 500;
   color: white;
-  text-align: left;
 }
 
 .upload-box input[type="file"] {
@@ -171,11 +190,12 @@ main {
   color: white;
   cursor: pointer;
   width: 100%;
-  transition: 0.3s;
+  transition: border-color 0.3s ease, transform 0.2s ease;
 }
 
 .upload-box input[type="file"]:hover {
   border-color: #8a2be2;
+  transform: scale(1.01);
 }
 
 .upload-box button {
@@ -188,7 +208,7 @@ main {
   border: none;
   border-radius: 30px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.3s ease;
 }
 
 .upload-box button:hover {
@@ -203,7 +223,6 @@ main {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  scroll-behavior: smooth;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 15px;
   backdrop-filter: blur(12px);
@@ -213,33 +232,20 @@ main {
 .message {
   padding: 10px 14px;
   border-radius: 10px;
-  width: fit-content;
   max-width: 80%;
   line-height: 1.5;
   word-wrap: break-word;
+  animation: fadeIn 0.3s ease-in-out forwards;
 }
 
 .message.user {
   align-self: flex-end;
-  background: rgba(0, 123, 255, 0.3);
-  color: white;
+  background: rgba(0,123,255,0.3);
 }
 
 .message.ai {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-}
-
-/* Fade-in for smooth entry */
-.fade-in {
-  opacity: 0;
-  animation: fadeIn 0.3s ease-in-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  background: rgba(255,255,255,0.15);
 }
 
 /* ================= CHAT INPUT ================= */
@@ -260,6 +266,7 @@ main {
   border: 1px solid #444;
   background: #111;
   color: white;
+  transition: border-color 0.3s ease;
 }
 
 .chat-input:focus {
@@ -275,6 +282,7 @@ main {
   color: white;
   cursor: pointer;
   font-weight: 600;
+  transition: transform 0.3s ease;
 }
 
 .chat-send-btn:hover {
@@ -283,10 +291,11 @@ main {
 
 /* ================= LOADING OVERLAY ================= */
 .loading-overlay {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0,0,0,0.75);
   display: none;
   justify-content: center;
@@ -294,15 +303,21 @@ main {
   flex-direction: column;
   z-index: 2000;
   text-align: center;
-  color: #fff;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 .spinner {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #8a2be2;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   animation: spin 1s linear infinite;
 }
 
@@ -311,10 +326,15 @@ main {
   100% { transform: rotate(360deg); }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
   main {
-    padding-top: 100px;
+    padding-top: 120px;
     padding-bottom: 30px;
   }
 
@@ -331,4 +351,18 @@ main {
   .chat-box {
     max-height: 300px;
   }
+
+  .navbar {
+    padding: 15px 30px;
+  }
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5); /* semi-transparent dark */
+  color: #aaa;;
+  position: relative;
+  /* top: 1000px; */
 }

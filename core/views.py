@@ -28,7 +28,6 @@ def judge(request):
 def grader(request):
     return render(request, "core/grader.html")
 
-
 # ===================== ROLEPLAY CHAT =====================
 @csrf_exempt
 def roleplay_chat(request):
@@ -76,7 +75,6 @@ Respond as plain text formatted like an official DECA role play.
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
 
-
 # ===================== PDF GRADER =====================
 def extract_text_from_pdf(file):
     """Extract all text from PDF"""
@@ -90,7 +88,6 @@ def extract_text_from_pdf(file):
         return text
     except Exception as e:
         raise ValueError(f"Failed to read PDF: {str(e)}")
-
 
 @csrf_exempt
 def upload_pdf(request):
@@ -108,7 +105,6 @@ def upload_pdf(request):
             logger.error(f"PDF extraction failed: {str(e)}\n{traceback.format_exc()}")
             return JsonResponse({"error": str(e)}, status=400)
 
-        # Optional rubric
         rubric_text = "Use standard DECA grading rubric."
         rubric_file = request.FILES.get("rubric")
         if rubric_file:
@@ -127,17 +123,21 @@ Grade the following written entry using this rubric:
 Written Entry:
 {pdf_text}
 
-Provide:
-- Section scores
-- Detailed feedback per criterion
-- Total score out of 60
-Respond in clear, structured format suitable for high school students.
+Respond in **ChatGPT-style** format:
+- Grade out of 60
+- Bold section headers (I, II, III...)
+- Use dashes/bullets for feedback
+- Leave spacing between sections
+- **Include a final 'Actionable Suggestions / What to fix' section with numbered items**
         """
 
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
-                {"role": "system", "content": "You are an expert DECA judge."},
+                {
+                    "role": "system",
+                    "content": "You are an expert DECA judge. Format output like ChatGPT with bold headers, bullets, spacing, and an actionable suggestions section."
+                },
                 {"role": "user", "content": prompt}
             ]
         )
@@ -149,14 +149,9 @@ Respond in clear, structured format suitable for high school students.
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
 
-
 # ===================== AI GRADER CHAT =====================
 @csrf_exempt
 def chat_with_grader(request):
-    """
-    Handles follow-up conversation after the PDF has been graded.
-    Uses chat history to continue context-aware discussion with AI grader.
-    """
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
@@ -165,8 +160,7 @@ def chat_with_grader(request):
         message = data.get("message", "")
         history = data.get("history", [])
 
-        # Build prompt including conversation history
-        prompt = "You are an AI DECA grader. Continue the conversation with the student based on the following history:\n"
+        prompt = "You are an AI DECA grader. Continue the conversation with the student. Respond in **ChatGPT-style** format:\n"
         for msg in history:
             role = "Student" if msg["role"] == "user" else "AI Grader"
             prompt += f"{role}: {msg['content']}\n"
@@ -175,9 +169,12 @@ def chat_with_grader(request):
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
-                {"role": "system", "content": "You are an expert DECA judge."},
-                {"role": "user", "content": prompt}
-            ]
+                {
+                    "role": "system",
+                    "content": "You are an expert DECA judge. Format output with bold section headers, bullets, spacing, and always include a final 'Actionable Suggestions / What to fix' section."
+                },
+                {"role": "user", "content": prompt},
+            ],
         )
 
         ai_reply = response.choices[0].message.content.strip()

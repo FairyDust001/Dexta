@@ -9,45 +9,31 @@
     <link rel="stylesheet" href="{% static 'core/test_prep.css' %}">
 </head>
 <body>
-     <!-- Navbar -->
-     <header class="navbar">
-        <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
-        <nav>
-            <ul class="nav-links">
-                <li class="dropdown">
-                    <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#mission">Our Mission</a></li>
-                        <li><a href="#team">The Team</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="{% url 'test_prep' %}" class="active">Test Prep <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#mission">Principles</a></li>
-                        <li><a href="#team">Individual Series </a></li>
-                        <li><a href="#team">Team Decision Making</a></li>
-                        <li><a href="#team">Personal Financial Literacy</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="" >Digital Judge <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url 'judge' %}">Role Play Judge</a></li>
-                        <li><a href="#mission">Prepared Events Judge</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">AI Grader <span class="arrow">&#9662;</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url 'grader' %}">Written Entry Grader</a></li>
-                        <li><a href="#mission">Presentation Grader</a></li>
-                    </ul>
-                </li>
-                <li><a href="#">Sign In </a></li>
-            </ul>
-        </nav>
-    </header>
+<!-- Navbar -->
+<header class="navbar">
+    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <nav>
+        <ul class="nav-links">
+            <li class="dropdown">
+                <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#mission">Our Mission</a></li>
+                    <li><a href="#team">The Team</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a style="color:rgb(73, 72, 72)" class="active">Test Prep</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'judge' %}">Digital Judge</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'grader' %}">AI Grader</a>
+            </li>
+            <li><a style="color:rgb(73, 72, 72)">Sign In</a></li>
+        </ul>
+    </nav>
+</header>
 
     <!-- Test Prep Section -->
     <section class="test-prep">

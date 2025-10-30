@@ -418,21 +418,20 @@ a:link {
 
 
 /* Footer */
-.footer {
+.footer { 
     text-align: center;
-    padding: 20px;
-    background: #4B2E83;
-    color: white;
-    position: relative;
-    /* top: 1000px; */
-}
+    padding: 30px; 
+    color: #aaa; 
+    background: #000000;
+  }
+  
 
-/* Page transition setup */
+/* Page transition setup
 body {
     opacity: 0;
-    transition: opacity .5s ease-in-out;
-}
+    transition: opacity .3s ease-in-out;
+} */
 
-body.fade-in {
+/* body.fade-in {
     opacity: 1;
-}
+} */
