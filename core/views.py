@@ -28,7 +28,7 @@ def judge(request):
 def grader(request):
     return render(request, "core/grader.html")
 
-# ===================== ROLEPLAY CHAT =====================
+# ===================== NON-STREAMING ROLEPLAY CHAT =====================
 @csrf_exempt
 def roleplay_chat(request):
     if request.method != "POST":
@@ -36,12 +36,20 @@ def roleplay_chat(request):
 
     try:
         data = json.loads(request.body)
-        user_input = data.get("message", "")
         conversation_history = data.get("history", [])
         cluster = data.get("cluster", "Business Administration Core")
         judge_name = data.get("judge", "Default Judge")
+        evaluate = data.get("evaluate", False)
 
-        prompt = f"""
+        if evaluate:
+            # Evaluation prompt
+            prompt = "Provide a detailed DECA-style evaluation of the presenter’s performance based on these responses:\n"
+            for msg in conversation_history:
+                role = "Student" if msg["role"] == "user" else "AI Judge"
+                prompt += f"{role}: {msg['content']}\n"
+        else:
+            # Generate new roleplay prompt
+            prompt = f"""
 You are a DECA Role Play prompt generator.
 Generate a high school DECA Role Play scenario with official DECA formatting.
 Include these sections clearly with bold headings and proper spacing:
@@ -58,17 +66,20 @@ Include these sections clearly with bold headings and proper spacing:
 
 Tailor scenario for judge "{judge_name}" and cluster "{cluster}".
 Respond as plain text formatted like an official DECA role play.
-        """
+            """
+
+        messages = [
+            {"role": "system", "content": "You are an expert DECA prompt generator and AI judge."},
+            {"role": "user", "content": prompt},
+        ]
 
         response = client.chat.completions.create(
             model="gpt-5-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert DECA prompt generator."},
-                {"role": "user", "content": prompt}
-            ]
+            messages=messages
         )
-        ai_message = response.choices[0].message.content.strip()
-        return JsonResponse({"reply": ai_message})
+
+        reply = response.choices[0].message.content.strip()
+        return JsonResponse({"reply": reply})
 
     except Exception as e:
         error_msg = f"Failed to generate roleplay: {str(e)}\n{traceback.format_exc()}"
@@ -77,12 +88,9 @@ Respond as plain text formatted like an official DECA role play.
 
 # ===================== PDF GRADER =====================
 def extract_text_from_pdf(file):
-    """Extract all text from PDF"""
     try:
         doc = fitz.open(stream=file.read(), filetype="pdf")
-        text = ""
-        for page in doc:
-            text += page.get_text()
+        text = "".join(page.get_text() for page in doc)
         if not text.strip():
             raise ValueError("PDF contains no extractable text.")
         return text
@@ -93,19 +101,14 @@ def extract_text_from_pdf(file):
 def upload_pdf(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
-
     try:
         pdf_file = request.FILES.get("file")
         if not pdf_file:
             return JsonResponse({"error": "No PDF file uploaded."}, status=400)
 
-        try:
-            pdf_text = extract_text_from_pdf(pdf_file)
-        except ValueError as e:
-            logger.error(f"PDF extraction failed: {str(e)}\n{traceback.format_exc()}")
-            return JsonResponse({"error": str(e)}, status=400)
-
+        pdf_text = extract_text_from_pdf(pdf_file)
         rubric_text = "Use standard DECA grading rubric."
+
         rubric_file = request.FILES.get("rubric")
         if rubric_file:
             try:
@@ -134,12 +137,9 @@ Respond in **ChatGPT-style** format:
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert DECA judge. Format output like ChatGPT with bold headers, bullets, spacing, and an actionable suggestions section."
-                },
-                {"role": "user", "content": prompt}
-            ]
+                {"role": "system", "content": "You are an expert DECA judge. Format output like ChatGPT with bold headers, bullets, spacing, and actionable suggestions."},
+                {"role": "user", "content": prompt},
+            ],
         )
         feedback = response.choices[0].message.content.strip()
         return JsonResponse({"feedback": feedback})
@@ -161,7 +161,7 @@ def chat_with_grader(request):
         history = data.get("history", [])
 
         prompt = "You are an AI DECA grader. Continue the conversation with the student. Respond in **ChatGPT-style** format:\n"
-        for msg in history:
+        for msg in history[-6:]:
             role = "Student" if msg["role"] == "user" else "AI Grader"
             prompt += f"{role}: {msg['content']}\n"
         prompt += f"Student: {message}\nAI Grader:"
@@ -169,14 +169,10 @@ def chat_with_grader(request):
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert DECA judge. Format output with bold section headers, bullets, spacing, and always include a final 'Actionable Suggestions / What to fix' section."
-                },
+                {"role": "system", "content": "You are an expert DECA judge. Format output with bold section headers, bullets, spacing, and always include a final 'Actionable Suggestions / What to fix' section."},
                 {"role": "user", "content": prompt},
             ],
         )
-
         ai_reply = response.choices[0].message.content.strip()
         return JsonResponse({"reply": ai_reply})
 
@@ -184,3 +180,4 @@ def chat_with_grader(request):
         error_msg = f"Failed to continue chat: {str(e)}\n{traceback.format_exc()}"
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
+

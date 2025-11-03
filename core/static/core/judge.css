@@ -13,11 +13,9 @@ html, body {
   overflow-x: hidden;
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* ensure body is full height */
+  min-height: 100vh;
 }
 
 /* Navbar */
@@ -32,48 +30,36 @@ html, body {
   top: 0;
   left: 0;
   z-index: 1000;
-  text-align: center;
 }
 
-/* Logo Styling with reflection */
 .logo {
   font-size: 1.4rem;
   font-weight: 700;
   color: rgb(220, 220, 220);
   letter-spacing: 1px;
   opacity: 0.95;
-  -webkit-box-reflect: below .7px
-      linear-gradient(transparent, rgba(0,0,0,0.6));
+  -webkit-box-reflect: below .7px linear-gradient(transparent, rgba(0,0,0,0.6));
 }
 
-a:active {
-  text-decoration: none; 
-}
-
-a:link {
+a {
   text-decoration: none;
 }
 
-/* Nav links */
+/* Nav Links */
 .nav-links {
   list-style: none;
   display: flex;
   gap: 25px;
-  justify-content: center;
-  padding: 0;
-  margin: 0; 
 }
 
 .nav-links li a {
   color: white;
-  text-decoration: none;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .nav-links li a:hover {
-  font-weight: 500;
   color: rgb(156, 95, 214);
-  transition: color 0.3s ease;
 }
 
 .arrow {
@@ -98,7 +84,7 @@ a:link {
   border-radius: 8px;
   min-width: 160px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .dropdown-menu li {
@@ -107,13 +93,11 @@ a:link {
 
 .dropdown-menu li a {
   color: white;
-  text-decoration: none;
   display: block;
-  font-weight: 500;
 }
 
 .dropdown-menu li a:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.1);
 }
 
 .dropdown:hover .dropdown-menu {
@@ -130,9 +114,8 @@ a:link {
 
 /* Main Content */
 main.judge-container {
-  flex: 1; /* take available space between navbar and footer */
-  margin-top: 140px; /* space for fixed navbar */
-  margin-bottom: 0; /* no extra space under footer */
+  flex: 1;
+  margin-top: 140px;
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
@@ -140,8 +123,17 @@ main.judge-container {
   padding: 0 20px;
 }
 
-.judge-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
-.judge-subtitle { font-size: 1rem; color: rgb(180, 180, 180); margin-bottom: 40px; }
+.judge-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.judge-subtitle {
+  font-size: 1rem;
+  color: rgb(180, 180, 180);
+  margin-bottom: 40px;
+}
 
 /* Roleplay Chat */
 .roleplay-container {
@@ -159,19 +151,45 @@ main.judge-container {
   background: rgba(255,255,255,0.02);
   border-radius: 8px;
   margin-bottom: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156,95,214,0.5) transparent;
 }
 
-textarea { width: 100%; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+textarea {
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  resize: none;
+}
 
-button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rgb(156, 95, 214); color: white; border: none; }
+/* Buttons */
+button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgb(156, 95, 214);
+  color: white;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(156,95,214,0.5);
+}
 
 /* Chat Layout */
-.message { display: flex; margin: 10px 0; width: 100%; }
+.message {
+  display: flex;
+  margin: 10px 0;
+  width: 100%;
+}
 
 .message.ai { justify-content: flex-start; }
 .message.ai .bubble {
-  background-color: rgba(255, 153, 255, 0.15);
-  border: 1px solid rgba(255, 153, 255, 0.3);
+  background-color: rgba(255,153,255,0.15);
+  border: 1px solid rgba(255,153,255,0.3);
   color: #ffb3ff;
   border-radius: 15px 15px 15px 5px;
   padding: 10px 15px;
@@ -181,8 +199,8 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
 
 .message.user { justify-content: flex-end; }
 .message.user .bubble {
-  background-color: rgba(0, 255, 204, 0.15);
-  border: 1px solid rgba(0, 255, 204, 0.3);
+  background-color: rgba(0,255,204,0.15);
+  border: 1px solid rgba(0,255,204,0.3);
   color: #00ffcc;
   border-radius: 15px 15px 5px 15px;
   padding: 10px 15px;
@@ -190,7 +208,7 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
   text-align: right;
 }
 
-/* Optional subtle animation */
+/* Bubble animation */
 .bubble {
   animation: fadeIn 0.25s ease-in-out;
 }
@@ -201,14 +219,14 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
 }
 
 /* Footer */
-.footer { 
+.footer {
   text-align: center;
-  padding: 30px; 
-  color: #aaa; 
-  background: rgba(0, 0, 0, 0.5); /* semi-transparent dark */
+  padding: 30px;
+  color: #aaa;
+  background: rgba(0,0,0,0.5);
 }
 
-/* === PREP PHASE === */
+/* === Prep Phase === */
 .prep-phase {
   background: rgba(255,255,255,0.05);
   padding: 20px;
@@ -229,42 +247,7 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
 }
 
 #timer-container { margin-top: 20px; }
-
 .hidden { display: none; }
-
-.deca-event {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 20px;
-  color: #e6e6e6;
-  line-height: 1.5;
-  font-size: 0.95rem;
-  white-space: pre-wrap;
-  margin-top: 10px;
-}
-
-.deca-event h2 {
-  text-align: center;
-  color: #00ffcc;
-  font-size: 1.6em;
-  margin-bottom: 15px;
-}
-
-.deca-event h3 {
-  margin-top: 20px;
-  color: #ff99ff;
-  font-size: 1.1em;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.deca-event ul {
-  margin-left: 20px;
-  list-style-type: "§ ";
-}
-
-.deca-event p { margin-top: 10px; white-space: pre-line; }
 
 /* Dropdown Styling */
 .prep-phase label {
@@ -280,25 +263,17 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
   width: 100%;
   padding: 10px 15px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-color: #9c5fd6;
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  border: 1px solid #9c5fd6;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
   font-size: 0.95rem;
   outline: none;
-  transition: border 0.3s ease, background 0.3s ease;
+  transition: all 0.25s ease-in-out;
 }
 
 .prep-phase select option {
   background-color: #1e1e1e;
   color: #e6e6e6;
-  box-shadow: 0 4px 12px rgba(156, 95, 214, 0.5);
-}
-
-.prep-phase select:hover,
-.prep-phase select:focus {
-  border-color: #9c5fd6;
-  background: rgba(156, 95, 214, 0.1);
 }
 
 /* Generate Button */
@@ -308,15 +283,14 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
   color: white;
   font-weight: 600;
   padding: 10px 25px;
-  border: none;
   border-radius: 8px;
+  border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 #generate-prompt-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(156, 95, 214, 0.5);
+  box-shadow: 0 4px 12px rgba(156,95,214,0.5);
 }
 
 /* Responsive */
@@ -326,9 +300,7 @@ button { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: rg
   #generate-prompt-btn { width: 100%; padding: 12px 0; }
 }
 
-/* Optional subtle animation for dropdowns */
-.prep-phase select { transition: all 0.25s ease-in-out; }
-
+/* DECA Paper Formatting */
 .deca-paper {
   font-family: "Times New Roman", serif;
   font-size: 1rem;
