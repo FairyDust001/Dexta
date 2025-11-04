@@ -103,11 +103,13 @@
   
   const restartPrepBtn = document.getElementById("restart-prep-btn");
   const restartChatBtn = document.getElementById("restart-chat-btn");
-
+  
   let conversationHistory = [];
   let countdownInterval;
   let chatCountdown;
-
+  let recognition;
+  let isWaitingForUser = true; // ensures AI responds once per user input
+  
   const JUDGES = {
     "Business Administration Core": ["Judge Alice", "Judge Bob"],
     "Finance Cluster": ["Judge Carol", "Judge Dave"],
@@ -116,7 +118,7 @@
     "Entrepreneurship Cluster": ["Judge Ivy", "Judge Jack"],
     "Personal Financial Literacy": ["Judge Kyle", "Judge Laura"]
   };
-
+  
   function populateJudges() {
     const selectedCluster = clusterSelect.value;
     judgeSelect.innerHTML = "";
@@ -127,10 +129,9 @@
       judgeSelect.appendChild(option);
     });
   }
-
   clusterSelect.addEventListener("change", populateJudges);
   populateJudges();
-
+  
   function speakText(text) {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
@@ -140,7 +141,8 @@
       window.speechSynthesis.speak(utterance);
     }
   }
-
+  
+  // Add message with smooth typing; scroll only if user is at bottom
   function addMessage(sender, text) {
     const messageWrapper = document.createElement("div");
     messageWrapper.classList.add("message", sender);
@@ -148,37 +150,33 @@
     bubble.classList.add("bubble");
     messageWrapper.appendChild(bubble);
     chatBox.appendChild(messageWrapper);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
+  
+    const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop === chatBox.clientHeight;
+  
     let index = 0;
     const interval = setInterval(() => {
       bubble.textContent = text.slice(0, index++);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      if (isAtBottom) chatBox.scrollTop = chatBox.scrollHeight;
       if (index > text.length) clearInterval(interval);
     }, 15);
   }
-
+  
+  // Generate DECA Role Play prompt
   generatePromptBtn.addEventListener("click", async () => {
     const selectedCluster = clusterSelect.value;
     const selectedJudge = judgeSelect.value;
     promptDisplay.innerHTML = "<p><em>Generating your DECA Role Play prompt...</em></p>";
     generatePromptBtn.disabled = true;
-
+  
     try {
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: "Generate DECA role play prompt",
-          history: [],
-          cluster: selectedCluster,
-          judge: selectedJudge
-        }),
+        body: JSON.stringify({ message: "Generate DECA role play prompt", history: [], cluster: selectedCluster, judge: selectedJudge }),
       });
-
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-
+  
       const formattedPrompt = `
         <div class="deca-paper">
           ${data.reply
@@ -194,7 +192,6 @@
             }).join("")}
         </div>
       `;
-
       promptDisplay.innerHTML = formattedPrompt;
       speakText("Your DECA role-play prompt is ready. You have ten minutes to prepare.");
       startTimer(10);
@@ -203,11 +200,11 @@
       generatePromptBtn.disabled = false;
     }
   });
-
+  
   function startTimer(minutes) {
     let time = minutes * 60;
     timerContainer.classList.remove("hidden");
-
+  
     countdownInterval = setInterval(() => {
       time--;
       const mins = Math.floor(time / 60);
@@ -219,27 +216,30 @@
         continueBtn.classList.remove("hidden");
       }
     }, 1000);
-
+  
     continueBtn.classList.remove("hidden");
   }
-
+  
+  // Start judge phase
   continueBtn.addEventListener("click", () => {
     clearInterval(countdownInterval);
     prepPhase.classList.add("hidden");
     chatPhase.classList.remove("hidden");
     startChatTimer(10);
-
+  
     const introMessage = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
     addMessage("ai", introMessage);
     speakText(introMessage);
+  
+    startSpeechRecognition(); // auto-start mic
   });
-
+  
   function startChatTimer(minutes) {
     const chatTimer = document.getElementById("chat-timer");
     const chatTimerDisplay = document.getElementById("chat-timer-display");
     chatTimer.classList.remove("hidden");
     let time = minutes * 60;
-
+  
     chatCountdown = setInterval(() => {
       time--;
       const mins = Math.floor(time / 60);
@@ -252,18 +252,14 @@
       }
     }, 1000);
   }
-
+  
   async function generateEvaluation() {
     addMessage("ai", "⏳ Time’s up! Generating your performance evaluation...");
     try {
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: "Evaluate presenter performance",
-          history: conversationHistory,
-          evaluate: true
-        }),
+        body: JSON.stringify({ message: "Evaluate presenter performance", history: conversationHistory, evaluate: true }),
       });
       const data = await res.json();
       addMessage("ai", data.reply || "Here’s your evaluation!");
@@ -272,39 +268,64 @@
       addMessage("ai", "Error generating evaluation.");
     }
   }
-
+  
+  // Send message (only respond once per user input)
   async function sendMessage(message) {
-    if (!message) return;
+    if (!message || !isWaitingForUser) return;
+  
+    isWaitingForUser = false;
     addMessage("user", message);
     conversationHistory.push({ role: "user", content: message });
-
+  
     try {
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, history: conversationHistory, cluster: clusterSelect.value, judge: judgeSelect.value }),
       });
-
       const data = await res.json();
+  
       if (data.error) {
         addMessage("ai", "⚠️ Error: " + data.error);
-        return;
+      } else {
+        addMessage("ai", data.reply);
+        speakText(data.reply);
+        conversationHistory.push({ role: "assistant", content: data.reply });
       }
-
-      addMessage("ai", data.reply);
-      speakText(data.reply);
-      conversationHistory.push({ role: "assistant", content: data.reply });
     } catch {
       addMessage("ai", "There was an error processing your request.");
+    } finally {
+      isWaitingForUser = true; // wait for next user input
     }
   }
-
+  
+  // Speech recognition
+  function startSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Speech recognition not supported.");
+  
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.start();
+  
+    recognition.onresult = e => {
+      const transcript = e.results[e.results.length - 1][0].transcript.trim();
+      userInput.value = transcript;
+      sendMessage(transcript);
+    };
+  
+    recognition.onerror = e => console.error("Speech recognition error:", e.error);
+  }
+  
+  // Event listeners
   sendBtn.addEventListener("click", () => {
     const message = userInput.value.trim();
     userInput.value = "";
     sendMessage(message);
   });
-
+  
   userInput.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -313,23 +334,15 @@
       sendMessage(message);
     }
   });
-
+  
   speakBtn.addEventListener("click", () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Speech recognition not supported.");
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.start();
-    recognition.onresult = e => {
-      const transcript = e.results[0][0].transcript;
-      userInput.value = transcript;
-      sendMessage(transcript);
-    };
+    if (recognition) recognition.start();
   });
-
+  
   restartPrepBtn.addEventListener("click", () => location.reload());
   restartChatBtn.addEventListener("click", () => location.reload());
-</script>
+  </script>
+  
 
 </body>
 </html>

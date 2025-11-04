@@ -11,7 +11,7 @@
 <body>
 <!-- Navbar -->
 <header class="navbar">
-  <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+  <a href="{% url 'home' %}"><h1 style="font-size: 30px;" class="logo">DEXTA</h1></a>
   <nav>
       <ul class="nav-links">
           <li class="dropdown">
@@ -21,138 +21,189 @@
                   <li><a href="#team">The Team</a></li>
               </ul>
           </li>
-          <li class="dropdown">
-              <a style="color:rgb(73, 72, 72)" class="active">Test Prep</a>
-          </li>
-          <li class="dropdown">
-              <a href="{% url 'judge' %}">Digital Judge</a>
-          </li>
-          <li class="dropdown">
-              <a href="{% url 'grader' %}">AI Grader</a>
-          </li>
+          <li class="dropdown"><a style="color:rgb(73, 72, 72)" class="active">Test Prep</a></li>
+          <li class="dropdown"><a href="{% url 'judge' %}">Digital Judge</a></li>
+          <li class="dropdown"><a href="{% url 'grader' %}">AI Grader</a></li>
           <li><a style="color:rgb(73, 72, 72)">Sign In</a></li>
       </ul>
   </nav>
 </header>
 
-
-
-  <!-- Loading overlay -->
-  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
-    <div class="spinner-container">
-      <div class="spinner"></div>
-      <p>Generating your DECA Written Entry Evaluation...</p>
-    </div>
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display:none;">
+  <div class="spinner-container">
+    <div class="spinner"></div>
+    <p>Generating your DECA Written Entry Evaluation...</p>
   </div>
+</div>
 
-  <main>
-    <div class="chat-container">
-      <h1>DEXTA AI Grader</h1>
-      <p>Upload your DECA written entry to receive your evaluation.</p>
+<main>
+  <div class="chat-container">
+    <h1>DEXTA AI Grader</h1>
+    <p>Upload your DECA written entry to receive your evaluation.</p>
 
-      <!-- Upload Form -->
-      <form id="graderForm" enctype="multipart/form-data" class="upload-box">
-        <label>Upload Written Entry (PDF)</label>
-        <input type="file" id="pdfFile" name="file" accept=".pdf" required>
-        <button type="submit" id="submitBtn">Submit for Evaluation</button>
-      </form>
+    <!-- Upload Form -->
+    <form id="graderForm" enctype="multipart/form-data" class="upload-box">
+      <label>Upload Written Entry (PDF)</label>
+      <input type="file" id="pdfFile" name="file" accept=".pdf" required>
+      <button type="submit" id="submitBtn">Submit for Evaluation</button>
+    </form>
 
-      <!-- Feedback Box -->
-      <div id="chatBox" class="chat-box"></div>
+    <!-- Feedback Box -->
+    <div id="chatBox" class="chat-box"></div>
 
-      <!-- Restart Button -->
+    <!-- Control Buttons -->
+    <div class="button-row">
+      <button id="downloadBtn" class="chat-send-btn" style="display:none; margin-top:15px;">Download Feedback as PDF</button>
       <button id="restartBtn" class="chat-send-btn" style="display:none; margin-top:15px;">Restart Evaluation</button>
     </div>
-  </main>
+  </div>
+</main>
 
-  <footer class="footer">
-    <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
-  </footer>
+<footer class="footer">
+  <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+</footer>
 
-  <script>
-    const form = document.getElementById("graderForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const chatBox = document.getElementById("chatBox");
-    const restartBtn = document.getElementById("restartBtn");
-    const loadingOverlay = document.getElementById("loadingOverlay");
+<!-- jsPDF library for downloads -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    let chatHistory = [];
-    let initialFeedback = "";
+<script>
+  const form = document.getElementById("graderForm");
+  const submitBtn = document.getElementById("submitBtn");
+  const chatBox = document.getElementById("chatBox");
+  const restartBtn = document.getElementById("restartBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const fileInput = document.getElementById("pdfFile");
 
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-          cookie = cookie.trim();
-          if (cookie.startsWith(name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
+  let chatHistory = [];
+  let initialFeedback = "";
+
+  // === Get CSRF Token ===
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
       }
-      return cookieValue;
     }
-    const csrfToken = getCookie('csrftoken');
-
-    function updateChatBox() {
-  const messagesHTML = [];
-  if(initialFeedback) {
-    messagesHTML.push(`<div class="message ai fade-in"><strong>AI Grader:</strong> ${initialFeedback}</div>`);
+    return cookieValue;
   }
-  chatHistory.forEach(msg => {
-    const roleClass = msg.role === "ai" ? "ai fade-in" : "user fade-in";
-    const label = msg.role === "ai" ? "AI Grader" : "You";
-    messagesHTML.push(`<div class="message ${roleClass}"><strong>${label}:</strong> ${msg.content}</div>`);
-  });
-  chatBox.innerHTML = messagesHTML.join("");
+  const csrfToken = getCookie('csrftoken');
 
-  // Always show the first message at the top
-  chatBox.scrollTo({ top: 0, behavior: "auto" });
-}
+  // === Update chat area ===
+  function updateChatBox() {
+    const messagesHTML = [];
+    if (initialFeedback) {
+      messagesHTML.push(`<div class="message ai fade-in"><strong>AI Grader:</strong> ${initialFeedback}</div>`);
+    }
+    chatHistory.forEach(msg => {
+      const roleClass = msg.role === "ai" ? "ai fade-in" : "user fade-in";
+      const label = msg.role === "ai" ? "AI Grader" : "You";
+      messagesHTML.push(`<div class="message ${roleClass}"><strong>${label}:</strong> ${msg.content}</div>`);
+    });
+    chatBox.innerHTML = messagesHTML.join("");
+    chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+  }
 
-      const formData = new FormData();
-      formData.append("file", fileInput.files[0]);
+  // === Handle Form Submission ===
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      loadingOverlay.style.display = "flex";
-      document.body.style.overflow = "hidden";
+    const file = fileInput.files[0];
+    if (!file) {
+      alert("Please upload a PDF file first.");
+      return;
+    }
 
-      try {
-        const response = await fetch("{% url 'upload_pdf' %}", {
-          method: "POST",
-          body: formData,
-          headers: {'X-CSRFToken': csrfToken}
-        });
-        const data = await response.json();
+    const formData = new FormData();
+    formData.append("file", file);
 
-        loadingOverlay.style.display = "none";
-        document.body.style.overflow = "auto";
+    loadingOverlay.style.display = "flex";
+    document.body.style.overflow = "hidden";
 
-        if(data.feedback) {
-          initialFeedback = data.feedback;
-          updateChatBox();
-          restartBtn.style.display = "block";
-          submitBtn.style.display = "none";
-        } else if(data.error) {
-          chatHistory.push({role: "ai", content: `❌ Failed to grade: ${data.error}`});
-          updateChatBox();
-        }
-      } catch(err) {
-        loadingOverlay.style.display = "none";
-        document.body.style.overflow = "auto";
-        chatHistory.push({role: "ai", content: `❌ Network error: ${err.message}`});
+    try {
+      const response = await fetch("{% url 'upload_pdf' %}", {
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRFToken": csrfToken }
+      });
+
+      const data = await response.json();
+
+      loadingOverlay.style.display = "none";
+      document.body.style.overflow = "auto";
+
+      if (data.feedback) {
+        initialFeedback = data.feedback;
+        updateChatBox();
+        restartBtn.style.display = "block";
+        downloadBtn.style.display = "block";
+        submitBtn.style.display = "none";
+      } else if (data.error) {
+        chatHistory.push({ role: "ai", content: `❌ Failed to grade: ${data.error}` });
         updateChatBox();
       }
+    } catch (err) {
+      loadingOverlay.style.display = "none";
+      document.body.style.overflow = "auto";
+      chatHistory.push({ role: "ai", content: `❌ Network error: ${err.message}` });
+      updateChatBox();
+    }
+  });
+
+  // === Handle Restart Button ===
+  restartBtn.addEventListener("click", () => {
+    chatHistory = [];
+    initialFeedback = "";
+    updateChatBox();
+    fileInput.value = "";
+    restartBtn.style.display = "none";
+    downloadBtn.style.display = "none";
+    submitBtn.style.display = "inline-block";
+  });
+
+  // === Download Feedback as PDF ===
+  downloadBtn.addEventListener("click", () => {
+    if (!initialFeedback) {
+      alert("No feedback to download yet.");
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    const margin = 40;
+    const lineHeight = 18;
+    const maxWidth = 500;
+
+    let y = margin;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("DEXTA AI Grader Evaluation", margin, y);
+    y += 30;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+
+    const lines = doc.splitTextToSize(initialFeedback.replace(/\*/g, ""), maxWidth);
+    lines.forEach(line => {
+      if (y + lineHeight > 800) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, margin, y);
+      y += lineHeight;
     });
 
-    restartBtn.addEventListener("click", () => {
-      chatHistory = [];
-      initialFeedback = "";
-      updateChatBox();
-      document.getElementById("pdfFile").value = "";
-      restartBtn.style.display = "none";
-      submitBtn.style.display = "inline-block";
-    });
-  </script>
+    const dateStr = new Date().toLocaleDateString().replace(/\//g, "-");
+    doc.save(`DECA_Evaluation_${dateStr}.pdf`);
+  });
+</script>
 </body>
 </html>
