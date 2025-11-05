@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 from django.conf import settings
 import fitz  # PyMuPDF
-import json
 import logging
 import traceback
 
@@ -16,18 +15,10 @@ logging.basicConfig(level=logging.INFO)
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 # ===================== PAGES =====================
-def home(request):
-    return render(request, "core/home.html")
-
-def test_prep(request):
-    return render(request, "core/test_prep.html")
-
-def judge(request):
-    return render(request, "core/judge.html")
-
 def grader(request):
     return render(request, "core/grader.html")
 
+<<<<<<< Updated upstream
 # ===================== NON-STREAMING ROLEPLAY CHAT =====================
 @csrf_exempt
 def roleplay_chat(request):
@@ -85,6 +76,8 @@ Respond as plain text formatted like an official DECA role play.
         error_msg = f"Failed to generate roleplay: {str(e)}\n{traceback.format_exc()}"
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
+=======
+>>>>>>> Stashed changes
 
 # ===================== PDF GRADER =====================
 def extract_text_from_pdf(file):
@@ -106,6 +99,7 @@ def upload_pdf(request):
         if not pdf_file:
             return JsonResponse({"error": "No PDF file uploaded."}, status=400)
 
+<<<<<<< Updated upstream
         pdf_text = extract_text_from_pdf(pdf_file)
         rubric_text = "Use standard DECA grading rubric."
 
@@ -117,6 +111,16 @@ def upload_pdf(request):
                     rubric_text = rubric_candidate
             except ValueError:
                 logger.warning("Rubric PDF extraction failed. Using default rubric.")
+=======
+        try:
+            pdf_text = extract_text_from_pdf(pdf_file)
+        except ValueError as e:
+            logger.error(f"PDF extraction failed: {str(e)}\n{traceback.format_exc()}")
+            return JsonResponse({"error": str(e)}, status=400)
+
+        # Optional rubric (default)
+        rubric_text = "Use standard DECA grading rubric."
+>>>>>>> Stashed changes
 
         prompt = f"""
 You are a DECA written entry judge.
@@ -141,6 +145,7 @@ Respond in **ChatGPT-style** format:
                 {"role": "user", "content": prompt},
             ],
         )
+
         feedback = response.choices[0].message.content.strip()
         return JsonResponse({"feedback": feedback})
 
@@ -149,6 +154,7 @@ Respond in **ChatGPT-style** format:
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
 
+<<<<<<< Updated upstream
 # ===================== AI GRADER CHAT =====================
 @csrf_exempt
 def chat_with_grader(request):
@@ -181,3 +187,5 @@ def chat_with_grader(request):
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
 
+=======
+>>>>>>> Stashed changes
