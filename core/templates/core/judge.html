@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DEXTA | AI Grader</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'core/grader.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Judge | DEXTA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'core/judge.css' %}">
 </head>
 <body>
 <!-- Navbar -->
@@ -86,6 +86,7 @@
   <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
 </footer>
 
+
 <script>
   const chatBox = document.getElementById("chat-box");
   const userInput = document.getElementById("user-input");
@@ -100,15 +101,12 @@
   const chatPhase = document.getElementById("chat-phase");
   const clusterSelect = document.getElementById("cluster-select");
   const judgeSelect = document.getElementById("judge-select");
-  
   const restartPrepBtn = document.getElementById("restart-prep-btn");
   const restartChatBtn = document.getElementById("restart-chat-btn");
   
   let conversationHistory = [];
-  let countdownInterval;
-  let chatCountdown;
-  let recognition;
-  let isWaitingForUser = true; // ensures AI responds once per user input
+  let countdownInterval, chatCountdown, recognition;
+  let isWaitingForUser = true;
   
   const JUDGES = {
     "Business Administration Core": ["Judge Alice", "Judge Bob"],
@@ -119,6 +117,7 @@
     "Personal Financial Literacy": ["Judge Kyle", "Judge Laura"]
   };
   
+  // Populate judges based on cluster selection
   function populateJudges() {
     const selectedCluster = clusterSelect.value;
     judgeSelect.innerHTML = "";
@@ -132,6 +131,7 @@
   clusterSelect.addEventListener("change", populateJudges);
   populateJudges();
   
+  // Speak text using TTS
   function speakText(text) {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
@@ -142,42 +142,35 @@
     }
   }
   
-  // Add message with smooth typing; scroll only if user is at bottom
+  // Add message instantly (no typing animation)
   function addMessage(sender, text) {
-    const messageWrapper = document.createElement("div");
-    messageWrapper.classList.add("message", sender);
+    const msgWrapper = document.createElement("div");
+    msgWrapper.classList.add("message", sender);
     const bubble = document.createElement("div");
     bubble.classList.add("bubble");
-    messageWrapper.appendChild(bubble);
-    chatBox.appendChild(messageWrapper);
-  
-    const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop === chatBox.clientHeight;
-  
-    let index = 0;
-    const interval = setInterval(() => {
-      bubble.textContent = text.slice(0, index++);
-      if (isAtBottom) chatBox.scrollTop = chatBox.scrollHeight;
-      if (index > text.length) clearInterval(interval);
-    }, 15);
+    bubble.textContent = text; // instant display
+    msgWrapper.appendChild(bubble);
+    chatBox.appendChild(msgWrapper);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
   
   // Generate DECA Role Play prompt
   generatePromptBtn.addEventListener("click", async () => {
-    const selectedCluster = clusterSelect.value;
-    const selectedJudge = judgeSelect.value;
-    promptDisplay.innerHTML = "<p><em>Generating your DECA Role Play prompt...</em></p>";
+    const cluster = clusterSelect.value;
+    const judge = judgeSelect.value;
+    promptDisplay.innerHTML = "<em>Generating your DECA Role Play prompt...</em>";
     generatePromptBtn.disabled = true;
   
     try {
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "Generate DECA role play prompt", history: [], cluster: selectedCluster, judge: selectedJudge }),
+        body: JSON.stringify({ message: "Generate DECA role play prompt", history: [], cluster, judge }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
   
-      const formattedPrompt = `
+      promptDisplay.innerHTML = `
         <div class="deca-paper">
           ${data.reply
             .split("\n")
@@ -189,22 +182,24 @@
               if (line.startsWith("- ")) return `<p class="bullet">${line}</p>`;
               if (line.match(/^\d+\./)) return `<p class="numbered">${line}</p>`;
               return `<p>${line}</p>`;
-            }).join("")}
+            })
+            .join("")}
         </div>
       `;
-      promptDisplay.innerHTML = formattedPrompt;
       speakText("Your DECA role-play prompt is ready. You have ten minutes to prepare.");
       startTimer(10);
     } catch (err) {
       promptDisplay.innerHTML = `<p style='color:red;'>Error generating prompt: ${err}</p>`;
+    } finally {
       generatePromptBtn.disabled = false;
     }
   });
   
+  // Prep timer
   function startTimer(minutes) {
     let time = minutes * 60;
     timerContainer.classList.remove("hidden");
-  
+    clearInterval(countdownInterval);
     countdownInterval = setInterval(() => {
       time--;
       const mins = Math.floor(time / 60);
@@ -216,7 +211,6 @@
         continueBtn.classList.remove("hidden");
       }
     }, 1000);
-  
     continueBtn.classList.remove("hidden");
   }
   
@@ -227,34 +221,34 @@
     chatPhase.classList.remove("hidden");
     startChatTimer(10);
   
-    const introMessage = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
-    addMessage("ai", introMessage);
-    speakText(introMessage);
+    const intro = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
+    addMessage("ai", intro);
+    speakText(intro);
   
-    startSpeechRecognition(); // auto-start mic
+    startSpeechRecognition();
   });
   
+  // Chat timer
   function startChatTimer(minutes) {
-    const chatTimer = document.getElementById("chat-timer");
-    const chatTimerDisplay = document.getElementById("chat-timer-display");
-    chatTimer.classList.remove("hidden");
+    const timer = document.getElementById("chat-timer-display");
     let time = minutes * 60;
-  
+    clearInterval(chatCountdown);
     chatCountdown = setInterval(() => {
       time--;
       const mins = Math.floor(time / 60);
       const secs = time % 60;
-      chatTimerDisplay.textContent = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+      timer.textContent = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
       if (time <= 0) {
         clearInterval(chatCountdown);
-        chatTimerDisplay.textContent = "⏰ Time’s up!";
+        timer.textContent = "⏰ Time’s up!";
         generateEvaluation();
       }
     }, 1000);
   }
   
+  // Generate evaluation after conversation ends
   async function generateEvaluation() {
-    addMessage("ai", "⏳ Time’s up! Generating your performance evaluation...");
+    addMessage("ai", "⏳ Time’s up! Generating your evaluation...");
     try {
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
@@ -262,17 +256,16 @@
         body: JSON.stringify({ message: "Evaluate presenter performance", history: conversationHistory, evaluate: true }),
       });
       const data = await res.json();
-      addMessage("ai", data.reply || "Here’s your evaluation!");
-      speakText("Here’s your evaluation!");
+      addMessage("ai", data.reply);
+      speakText(data.reply);
     } catch {
       addMessage("ai", "Error generating evaluation.");
     }
   }
   
-  // Send message (only respond once per user input)
+  // Send message only when user submits input
   async function sendMessage(message) {
     if (!message || !isWaitingForUser) return;
-  
     isWaitingForUser = false;
     addMessage("user", message);
     conversationHistory.push({ role: "user", content: message });
@@ -281,67 +274,66 @@
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history: conversationHistory, cluster: clusterSelect.value, judge: judgeSelect.value }),
+        body: JSON.stringify({
+          message,
+          history: conversationHistory,
+          cluster: clusterSelect.value,
+          judge: judgeSelect.value,
+        }),
       });
       const data = await res.json();
-  
       if (data.error) {
-        addMessage("ai", "⚠️ Error: " + data.error);
+        addMessage("ai", "⚠️ " + data.error);
       } else {
         addMessage("ai", data.reply);
         speakText(data.reply);
         conversationHistory.push({ role: "assistant", content: data.reply });
       }
     } catch {
-      addMessage("ai", "There was an error processing your request.");
+      addMessage("ai", "Error processing your request.");
     } finally {
-      isWaitingForUser = true; // wait for next user input
+      isWaitingForUser = true;
     }
   }
   
-  // Speech recognition
+  // Speech recognition fills input but does NOT auto-send
   function startSpeechRecognition() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Speech recognition not supported.");
-  
-    recognition = new SpeechRecognition();
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return alert("Speech recognition not supported.");
+    recognition = new SR();
     recognition.lang = "en-US";
     recognition.continuous = true;
     recognition.interimResults = false;
-    recognition.start();
   
     recognition.onresult = e => {
       const transcript = e.results[e.results.length - 1][0].transcript.trim();
-      userInput.value = transcript;
-      sendMessage(transcript);
+      userInput.value = transcript; // user can edit before sending
     };
   
-    recognition.onerror = e => console.error("Speech recognition error:", e.error);
+    recognition.start();
   }
   
   // Event listeners
   sendBtn.addEventListener("click", () => {
-    const message = userInput.value.trim();
+    const msg = userInput.value.trim();
     userInput.value = "";
-    sendMessage(message);
+    sendMessage(msg);
   });
   
   userInput.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      const message = userInput.value.trim();
+      const msg = userInput.value.trim();
       userInput.value = "";
-      sendMessage(message);
+      sendMessage(msg);
     }
   });
   
-  speakBtn.addEventListener("click", () => {
-    if (recognition) recognition.start();
-  });
-  
+  speakBtn.addEventListener("click", () => recognition && recognition.start());
   restartPrepBtn.addEventListener("click", () => location.reload());
   restartChatBtn.addEventListener("click", () => location.reload());
   </script>
+  
   
 
 </body>
