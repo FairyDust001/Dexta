@@ -165,11 +165,17 @@ def chat_with_grader(request):
         message = data.get("message", "")
         history = data.get("history", [])
 
-        system_msg = (
-            "You are an AI DECA grader. Wait for the student to submit their full message before replying. "
-            "Provide constructive, detailed feedback in a polite and professional tone. "
-            "Always include a final 'Actionable Suggestions / What to fix' section."
-        )
+        system_msg = ( f"""
+            You are an AI DECA grader. Wait for the student to submit their full message before replying.
+            Provide constructive, detailed feedback in a polite and professional tone.
+            Use clear formatting, including:
+            - A main title
+            - Subheadings for each major area of feedback that are bold
+            - Bullet points or numbered lists for clarity
+            - Short, readable paragraphs
+
+            Always include a final 'Actionable Suggestions / What to fix' section.
+        """)
 
         messages = [{"role": "system", "content": system_msg}]
         for msg in history:

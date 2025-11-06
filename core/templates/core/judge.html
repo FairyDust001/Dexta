@@ -57,6 +57,8 @@
     <div class="button-row">
       <button id="generate-prompt-btn">Generate Prompt</button>
       <button id="restart-prep-btn" style="margin-left:10px;">Restart</button>
+      <button id="go-chat-btn" style="margin-left:10px; background-color: rgb(85, 49, 119); border: 1px solid rgb(184, 138, 226); color: rgb(156, 95, 214);">Go to Chatbot</button>
+
     </div>
 
     <div id="prompt-display" class="prompt-display"></div>
@@ -69,7 +71,9 @@
 
   <!-- === JUDGE CHAT PHASE === -->
   <div id="chat-phase" class="roleplay-container hidden">
-    <div id="chat-box" class="chat-box"></div>
+    <div id="chat-box" class="chat-box">
+      
+    </div>
     <div id="chat-timer" class="hidden">
       <p>Judge Session Time Remaining: <span id="chat-timer-display">10:00</span></p>
     </div>
@@ -84,6 +88,8 @@
 
 <footer class="footer">
   <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+  <p>Responses may be inaccurate or incomplete.</p>
+  <p>Powered by AI to enhance learning and judgment, not replace it.</p>
 </footer>
 
 
@@ -103,6 +109,7 @@
   const judgeSelect = document.getElementById("judge-select");
   const restartPrepBtn = document.getElementById("restart-prep-btn");
   const restartChatBtn = document.getElementById("restart-chat-btn");
+  const goChatBtn = document.getElementById("go-chat-btn"); // NEW
   
   let conversationHistory = [];
   let countdownInterval, chatCountdown, recognition;
@@ -148,10 +155,29 @@
     msgWrapper.classList.add("message", sender);
     const bubble = document.createElement("div");
     bubble.classList.add("bubble");
-    bubble.textContent = text; // instant display
+    bubble.textContent = text;
     msgWrapper.appendChild(bubble);
     chatBox.appendChild(msgWrapper);
     chatBox.scrollTop = chatBox.scrollHeight;
+  }
+  
+  // Floating typing indicator
+  function showTypingIndicator() {
+    let indicator = document.getElementById("typing-indicator");
+    if (!indicator) {
+      indicator = document.createElement("div");
+      indicator.id = "typing-indicator";
+      indicator.className = "typing-indicator";
+      indicator.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+      chatBox.appendChild(indicator);
+    }
+    indicator.style.display = "flex";
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+  
+  function hideTypingIndicator() {
+    const indicator = document.getElementById("typing-indicator");
+    if (indicator) indicator.style.display = "none";
   }
   
   // Generate DECA Role Play prompt
@@ -215,7 +241,7 @@
   }
   
   // Start judge phase
-  continueBtn.addEventListener("click", () => {
+  function startJudgePhase() {
     clearInterval(countdownInterval);
     prepPhase.classList.add("hidden");
     chatPhase.classList.remove("hidden");
@@ -226,6 +252,13 @@
     speakText(intro);
   
     startSpeechRecognition();
+  }
+  
+  continueBtn.addEventListener("click", startJudgePhase);
+  
+  // NEW: Go straight to chat
+  goChatBtn.addEventListener("click", () => {
+    startJudgePhase();
   });
   
   // Chat timer
@@ -263,12 +296,15 @@
     }
   }
   
-  // Send message only when user submits input
+  // Send message
   async function sendMessage(message) {
     if (!message || !isWaitingForUser) return;
     isWaitingForUser = false;
+  
     addMessage("user", message);
     conversationHistory.push({ role: "user", content: message });
+  
+    showTypingIndicator();
   
     try {
       const res = await fetch("/roleplay_chat/", {
@@ -282,21 +318,22 @@
         }),
       });
       const data = await res.json();
-      if (data.error) {
-        addMessage("ai", "⚠️ " + data.error);
-      } else {
+      hideTypingIndicator();
+      if (data.error) addMessage("ai", "⚠️ " + data.error);
+      else {
         addMessage("ai", data.reply);
         speakText(data.reply);
         conversationHistory.push({ role: "assistant", content: data.reply });
       }
     } catch {
+      hideTypingIndicator();
       addMessage("ai", "Error processing your request.");
     } finally {
       isWaitingForUser = true;
     }
   }
   
-  // Speech recognition fills input but does NOT auto-send
+  // Speech recognition
   function startSpeechRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return alert("Speech recognition not supported.");
@@ -304,12 +341,10 @@
     recognition.lang = "en-US";
     recognition.continuous = true;
     recognition.interimResults = false;
-  
     recognition.onresult = e => {
       const transcript = e.results[e.results.length - 1][0].transcript.trim();
-      userInput.value = transcript; // user can edit before sending
+      userInput.value = transcript;
     };
-  
     recognition.start();
   }
   
@@ -334,7 +369,5 @@
   restartChatBtn.addEventListener("click", () => location.reload());
   </script>
   
-  
-
 </body>
 </html>

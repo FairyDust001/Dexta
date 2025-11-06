@@ -322,3 +322,45 @@ button:hover {
 
 .deca-paper .bullet { margin-left: 20px; }
 .deca-paper .numbered { margin-left: 20px; }
+
+/* === Typing Indicator === */
+.typing-indicator {
+  display: inline-flex; /* changed from flex */
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+  max-width: fit-content; /* shrink to content width */
+  background-color: rgba(255,153,255,0.15);
+  border: 1px solid rgba(255,153,255,0.3);
+  border-radius: 15px 15px 15px 5px;
+  padding: 10px 15px;
+  text-align: left;
+}
+
+
+.typing-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ffb3ff;
+  border-radius: 50%;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+.typing-indicator .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

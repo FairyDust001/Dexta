@@ -62,6 +62,8 @@
 
 <footer class="footer">
   <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+  <p>Responses may be inaccurate or incomplete.</p>
+  <p>Powered by AI to enhance learning and judgment, not replace it.</p>
 </footer>
 
 <!-- jsPDF library for downloads -->
@@ -75,72 +77,97 @@
   const downloadBtn = document.getElementById("downloadBtn");
   const loadingOverlay = document.getElementById("loadingOverlay");
   const fileInput = document.getElementById("pdfFile");
-
+  
   let chatHistory = [];
   let initialFeedback = "";
-
+  let typingIndicator = null;
+  
   // === Get CSRF Token ===
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
+      document.cookie.split(';').forEach(cookie => {
         cookie = cookie.trim();
         if (cookie.startsWith(name + '=')) {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
         }
-      }
+      });
     }
     return cookieValue;
   }
   const csrfToken = getCookie('csrftoken');
-
+  
   // === Update chat area ===
   function updateChatBox() {
-    const messagesHTML = [];
+    chatBox.innerHTML = ""; // clear previous content
+  
+    // Add initial feedback if exists
     if (initialFeedback) {
-      messagesHTML.push(`<div class="message ai fade-in"><strong>AI Grader:</strong> ${initialFeedback}</div>`);
+      const aiMsg = document.createElement("div");
+      aiMsg.className = "message ai fade-in";
+      aiMsg.innerHTML = `<strong>AI Grader:</strong> ${initialFeedback.replace(/\n/g, "<br>")}`;
+      chatBox.appendChild(aiMsg);
     }
+  
+    // Add chat history
     chatHistory.forEach(msg => {
+      const msgDiv = document.createElement("div");
       const roleClass = msg.role === "ai" ? "ai fade-in" : "user fade-in";
-      const label = msg.role === "ai" ? "AI Grader" : "You";
-      messagesHTML.push(`<div class="message ${roleClass}"><strong>${label}:</strong> ${msg.content}</div>`);
+      msgDiv.className = `message ${roleClass}`;
+      msgDiv.innerHTML = msg.role === "ai"
+        ? `<strong>AI Grader:</strong> ${msg.content.replace(/\n/g, "<br>")}`
+        : `You: ${msg.content}`;
+      chatBox.appendChild(msgDiv);
     });
-    chatBox.innerHTML = messagesHTML.join("");
+  
     chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
   }
-
+  
+  // === Show typing indicator ===
+  function showTypingIndicator() {
+    if (typingIndicator) return; // already shown
+    typingIndicator = document.createElement("div");
+    typingIndicator.className = "message ai fade-in typing-indicator";
+    typingIndicator.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+    chatBox.appendChild(typingIndicator);
+    chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+  }
+  
+  // === Hide typing indicator ===
+  function hideTypingIndicator() {
+    if (typingIndicator) {
+      typingIndicator.remove();
+      typingIndicator = null;
+    }
+  }
+  
   // === Handle Form Submission ===
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+  
     const file = fileInput.files[0];
-    if (!file) {
-      alert("Please upload a PDF file first.");
-      return;
-    }
-
+    if (!file) return alert("Please upload a PDF file first.");
+  
     const formData = new FormData();
     formData.append("file", file);
-
+  
     loadingOverlay.style.display = "flex";
     document.body.style.overflow = "hidden";
-
+  
     try {
       const response = await fetch("{% url 'upload_pdf' %}", {
         method: "POST",
         body: formData,
         headers: { "X-CSRFToken": csrfToken }
       });
-
+  
       const data = await response.json();
-
       loadingOverlay.style.display = "none";
       document.body.style.overflow = "auto";
-
+  
       if (data.feedback) {
         initialFeedback = data.feedback;
+        chatHistory = []; // clear any previous chat
         updateChatBox();
         restartBtn.style.display = "block";
         downloadBtn.style.display = "block";
@@ -156,42 +183,43 @@
       updateChatBox();
     }
   });
-
-  // === Handle Restart Button ===
+  
+  // === Restart Button ===
   restartBtn.addEventListener("click", () => {
+    // Clear chat completely
     chatHistory = [];
     initialFeedback = "";
+    hideTypingIndicator(); // remove any floating dots
     updateChatBox();
     fileInput.value = "";
     restartBtn.style.display = "none";
     downloadBtn.style.display = "none";
     submitBtn.style.display = "inline-block";
   });
-
+  
   // === Download Feedback as PDF ===
   downloadBtn.addEventListener("click", () => {
-    if (!initialFeedback) {
-      alert("No feedback to download yet.");
-      return;
-    }
-
+    if (!initialFeedback) return alert("No feedback to download yet.");
+  
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
-
+  
     const margin = 40;
     const lineHeight = 18;
     const maxWidth = 500;
-
+  
     let y = margin;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("DEXTA AI Grader Evaluation", margin, y);
     y += 30;
-
+  
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-
-    const lines = doc.splitTextToSize(initialFeedback.replace(/\*/g, ""), maxWidth);
+  
+    const formattedText = initialFeedback.replace(/\*\*/g, "").replace(/-/g, "•");
+    const lines = doc.splitTextToSize(formattedText, maxWidth);
+  
     lines.forEach(line => {
       if (y + lineHeight > 800) {
         doc.addPage();
@@ -200,11 +228,13 @@
       doc.text(line, margin, y);
       y += lineHeight;
     });
-
+  
     const dateStr = new Date().toLocaleDateString().replace(/\//g, "-");
     doc.save(`DECA_Evaluation_${dateStr}.pdf`);
   });
-</script>
+  </script>
+  
+  
 </body>
 </html>
 
