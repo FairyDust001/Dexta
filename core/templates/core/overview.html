@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competition Prep | DEXTA</title>
+  <link rel="stylesheet" href="{% static 'core/overview.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="navbar">
+    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <nav>
+        <ul class="nav-links">
+            <li class="dropdown">
+                <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#mission">Our Mission</a></li>
+                    <li><a href="#team">The Team</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a style="color:rgb(73, 72, 72)" class="active">Test Prep</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'judge' %}">Digital Judge</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'grader' %}">AI Grader</a>
+            </li>
+            <li><a style="color:rgb(73, 72, 72)">Sign In</a></li>
+        </ul>
+    </nav>
+</header>
+
+
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Competition Prep with DEXTA</h1>
+      <p>Empowering DECA competitors to prepare smarter, refine their presentations, and compete with confidence.</p>
+      <a href="{% url 'judge' %}" class="cta-btn">Try the Chatbot</a>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT SECTION ===== -->
+  <section class="about" id="about">
+    <h2>What is DEXTA?</h2>
+    <p>DEXTA is your digital DECA companion designed to help you practice roleplays, receive AI-driven feedback, and simulate real judge evaluations. Built by students, for students, DEXTA blends AI grading, performance coaching, and conversational learning to elevate your competition prep.</p>
+  </section>
+
+  <!-- ===== PREP SECTION ===== -->
+  <section class="prep" id="prep">
+    <h2>How DEXTA Helps You Compete</h2>
+    <ul>
+      <li><strong>✅ Practice Roleplays:</strong> Upload your event or presentation and get detailed scoring breakdowns.</li>
+      <li><strong>✅ AI Evaluation:</strong> Understand where you excel and where to improve before competition day.</li>
+      <li><strong>✅ Chat-Based Coaching:</strong> Ask DEXTA how to boost your strategy, script, or delivery.</li>
+    </ul>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="features" id="features">
+    <h2>Explore Our Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>AI Grader</h3>
+        <p>Upload your project for instant, rubric-based AI feedback.</p>
+        <a href="{% url 'grader' %}" class="feature-btn">Go to Grader</a>
+      </div>
+      <div class="feature-card">
+        <h3>Chatbot</h3>
+        <p>Ask questions, get tips, and simulate DECA interviews.</p>
+        <a href="{% url 'judge' %}" class="feature-btn">Open Chatbot</a>
+      </div>
+      <div class="feature-card">
+        <h3>Digital Judge</h3>
+        <p>Experience real-time judging simulations to test your readiness.</p>
+        <a href="{% url 'judge' %}" class="feature-btn">Start Judging</a>
+      </div>
+    </div>
+  </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+        <p>Responses may be inaccurate or incomplete.</p>
+        <p>Powered by AI to enhance learning and judgment, not replace it.</p>
+    </footer>
+
+</body>
+</html>

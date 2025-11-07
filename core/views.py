@@ -28,6 +28,8 @@ def judge(request):
 def grader(request):
     return render(request, "core/grader.html")
 
+def overview(request):
+    return render(request, "core/overview.html")
 # ===================== PDF UPLOAD & INITIAL AI GRADING =====================
 @csrf_exempt
 def upload_pdf(request):

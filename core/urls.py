@@ -7,6 +7,7 @@ urlpatterns = [
     path("test-prep/", views.test_prep, name="test_prep"),
     path("judge/", views.judge, name="judge"),
     path("grader/", views.grader, name="grader"),
+    path("overview/", views.overview, name="overview"),
 
     # Roleplay Chat (DECA scenarios)
     path("roleplay_chat/", views.roleplay_chat, name="roleplay_chat"),
