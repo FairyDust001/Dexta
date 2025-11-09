@@ -11,25 +11,30 @@
 <body>
 <!-- Navbar -->
 <header class="navbar">
-  <a href="{% url 'home' %}"><h1 style="font-size: 30px;" class="logo">DEXTA</h1></a>
-  <nav>
-      <ul class="nav-links">
-          <li class="dropdown">
-              <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
-              <ul class="dropdown-menu">
-                  <li><a href="#mission">Our Mission</a></li>
-                  <li><a href="#team">The Team</a></li>
-              </ul>
-          </li>
-          <li class="dropdown"><a style="color:rgb(73, 72, 72)" class="active">Test Prep</a></li>
-          <li class="dropdown"><a href="{% url 'judge' %}">Digital Judge</a></li>
-          <li class="dropdown"><a href="{% url 'grader' %}">AI Grader</a></li>
-          <li><a style="color:rgb(73, 72, 72)">Sign In</a></li>
-      </ul>
-  </nav>
+    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <nav>
+        <ul class="nav-links">
+            <li class="dropdown">
+                <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#mission">Our Mission</a></li>
+                    <li><a href="#team">The Team</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a style="color:rgb(73, 72, 72)" class="active">Test Prep</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'judge' %}">Digital Judge</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'grader' %}">AI Grader</a>
+            </li>
+            <li><a style="color:rgb(73, 72, 72)">Sign In</a></li>
+        </ul>
+    </nav>
 </header>
 
-<<<<<<< Updated upstream
 <!-- Loading overlay -->
 <div id="loadingOverlay" class="loading-overlay" style="display:none;">
   <div class="spinner-container">
@@ -47,6 +52,10 @@
     <form id="graderForm" enctype="multipart/form-data" class="upload-box">
       <label>Upload Written Entry (PDF)</label>
       <input type="file" id="pdfFile" name="file" accept=".pdf" required>
+
+      <label>Optional Rubric (PDF or JSON)</label>
+      <input type="file" id="rubricFile" name="rubric" accept=".pdf,.json" class="styled-file-input">
+
       <button type="submit" id="submitBtn">Submit for Evaluation</button>
     </form>
 
@@ -63,8 +72,6 @@
 
 <footer class="footer">
   <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
-  <p>Responses may be inaccurate or incomplete.</p>
-  <p>Powered by AI to enhance learning and judgment, not replace it.</p>
 </footer>
 
 <!-- jsPDF library for downloads -->
@@ -78,130 +85,77 @@
   const downloadBtn = document.getElementById("downloadBtn");
   const loadingOverlay = document.getElementById("loadingOverlay");
   const fileInput = document.getElementById("pdfFile");
-  
+  const rubricInput = document.getElementById("rubricFile");
+
   let chatHistory = [];
   let initialFeedback = "";
-  let typingIndicator = null;
-  
+
   // === Get CSRF Token ===
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-      document.cookie.split(';').forEach(cookie => {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
         cookie = cookie.trim();
         if (cookie.startsWith(name + '=')) {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-=======
-  <!-- Main -->
-<!-- Main -->
-    <main>
-      <div class="grader-container">
-        <h1>DEXTA AI Grader</h1>
-
-        <!-- Upload Form -->
-        <form id="graderForm" enctype="multipart/form-data" class="upload-box">
-          <label>Upload Written Entry (PDF)</label>
-          <input type="file" id="pdfFile" name="file" accept=".pdf" required>
-          <button type="submit" id="submitBtn">Submit for Evaluation</button>
-        </form>
-        
-      </div>
-    </main>
-
-
-  <script>
-    const form = document.getElementById("graderForm");
-
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-          cookie = cookie.trim();
-          if (cookie.startsWith(name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
->>>>>>> Stashed changes
+          break;
         }
-      });
+      }
     }
     return cookieValue;
   }
   const csrfToken = getCookie('csrftoken');
-<<<<<<< Updated upstream
-  
+
   // === Update chat area ===
   function updateChatBox() {
-    chatBox.innerHTML = ""; // clear previous content
-  
-    // Add initial feedback if exists
+    const messagesHTML = [];
     if (initialFeedback) {
-      const aiMsg = document.createElement("div");
-      aiMsg.className = "message ai fade-in";
-      aiMsg.innerHTML = `<strong>AI Grader:</strong> ${initialFeedback.replace(/\n/g, "<br>")}`;
-      chatBox.appendChild(aiMsg);
+      messagesHTML.push(`<div class="message ai fade-in"><strong>AI Grader:</strong> ${initialFeedback}</div>`);
     }
-  
-    // Add chat history
     chatHistory.forEach(msg => {
-      const msgDiv = document.createElement("div");
       const roleClass = msg.role === "ai" ? "ai fade-in" : "user fade-in";
-      msgDiv.className = `message ${roleClass}`;
-      msgDiv.innerHTML = msg.role === "ai"
-        ? `<strong>AI Grader:</strong> ${msg.content.replace(/\n/g, "<br>")}`
-        : `You: ${msg.content}`;
-      chatBox.appendChild(msgDiv);
+      const label = msg.role === "ai" ? "AI Grader" : "You";
+      messagesHTML.push(`<div class="message ${roleClass}"><strong>${label}:</strong> ${msg.content}</div>`);
     });
-  
+    chatBox.innerHTML = messagesHTML.join("");
     chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
   }
-  
-  // === Show typing indicator ===
-  function showTypingIndicator() {
-    if (typingIndicator) return; // already shown
-    typingIndicator = document.createElement("div");
-    typingIndicator.className = "message ai fade-in typing-indicator";
-    typingIndicator.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
-    chatBox.appendChild(typingIndicator);
-    chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
-  }
-  
-  // === Hide typing indicator ===
-  function hideTypingIndicator() {
-    if (typingIndicator) {
-      typingIndicator.remove();
-      typingIndicator = null;
-    }
-  }
-  
+
   // === Handle Form Submission ===
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-  
+
     const file = fileInput.files[0];
-    if (!file) return alert("Please upload a PDF file first.");
-  
+    if (!file) {
+      alert("Please upload a PDF file first.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
+    // Append rubric if provided
+    if (rubricInput.files.length > 0) {
+      formData.append("rubric", rubricInput.files[0]);
+    }
+
     loadingOverlay.style.display = "flex";
     document.body.style.overflow = "hidden";
-  
+
     try {
       const response = await fetch("{% url 'upload_pdf' %}", {
         method: "POST",
         body: formData,
         headers: { "X-CSRFToken": csrfToken }
       });
-  
+
       const data = await response.json();
       loadingOverlay.style.display = "none";
       document.body.style.overflow = "auto";
-  
+
       if (data.feedback) {
         initialFeedback = data.feedback;
-        chatHistory = []; // clear any previous chat
         updateChatBox();
         restartBtn.style.display = "block";
         downloadBtn.style.display = "block";
@@ -217,87 +171,77 @@
       updateChatBox();
     }
   });
-  
-  // === Restart Button ===
+
+  // === Handle Restart Button ===
   restartBtn.addEventListener("click", () => {
-    // Clear chat completely
     chatHistory = [];
     initialFeedback = "";
-    hideTypingIndicator(); // remove any floating dots
     updateChatBox();
     fileInput.value = "";
+    rubricInput.value = ""; // clear rubric input too
     restartBtn.style.display = "none";
     downloadBtn.style.display = "none";
     submitBtn.style.display = "inline-block";
   });
-  
+
   // === Download Feedback as PDF ===
   downloadBtn.addEventListener("click", () => {
-    if (!initialFeedback) return alert("No feedback to download yet.");
-  
+    if (!initialFeedback) {
+      alert("No feedback to download yet.");
+      return;
+    }
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
-  
+
     const margin = 40;
     const lineHeight = 18;
     const maxWidth = 500;
-  
+
     let y = margin;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("DEXTA AI Grader Evaluation", margin, y);
     y += 30;
-  
+
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-  
-    const formattedText = initialFeedback.replace(/\*\*/g, "").replace(/-/g, "•");
-    const lines = doc.splitTextToSize(formattedText, maxWidth);
-  
+
+    const lines = doc.splitTextToSize(initialFeedback.replace(/\*/g, ""), maxWidth);
     lines.forEach(line => {
       if (y + lineHeight > 800) {
         doc.addPage();
         y = margin;
-=======
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById("pdfFile");
-      if (!fileInput.files.length) return alert("Please select a PDF to upload.");
-
-    const margin = 40;
-    const lineHeight = 18;
-    const maxWidth = 500;
-
-      try {
-        await fetch("{% url 'upload_pdf' %}", {
-          method: "POST",
-          headers: { 'X-CSRFToken': csrfToken },
-          body: formData
-        });
-        alert("Your PDF has been submitted for evaluation.");
-      } catch (err) {
-        alert("Network error: " + err.message);
->>>>>>> Stashed changes
       }
       doc.text(line, margin, y);
       y += lineHeight;
     });
-<<<<<<< Updated upstream
-  
+
     const dateStr = new Date().toLocaleDateString().replace(/\//g, "-");
     doc.save(`DECA_Evaluation_${dateStr}.pdf`);
   });
-=======
->>>>>>> Stashed changes
-  </script>
-  
-  
+</script>
+
+<style>
+/* Optional Rubric input styled like upload button */
+.styled-file-input {
+  background: #111;
+  border: 1px solid #444;
+  padding: 12px;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.3s ease, transform 0.2s ease, background 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.styled-file-input:hover {
+  border-color: #8a2be2;
+  transform: scale(1.01);
+  background: linear-gradient(90deg, #6200ea, #8a2be2);
+}
+</style>
 </body>
 </html>
 
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes

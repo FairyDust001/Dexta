@@ -28,9 +28,9 @@ def judge(request):
 def grader(request):
     return render(request, "core/grader.html")
 
-<<<<<<< Updated upstream
 def overview(request):
     return render(request, "core/overview.html")
+
 # ===================== PDF UPLOAD & INITIAL AI GRADING =====================
 @csrf_exempt
 def upload_pdf(request):
@@ -80,9 +80,6 @@ def upload_pdf(request):
 
 
 # ===================== INTERACTIVE ROLEPLAY CHAT =====================
-=======
-# ===================== NON-STREAMING ROLEPLAY CHAT =====================
->>>>>>> Stashed changes
 @csrf_exempt
 def roleplay_chat(request):
     if request.method != "POST":
@@ -155,84 +152,12 @@ Wait until the student has submitted their full input before responding.
         return JsonResponse({"reply": reply})
 
     except Exception as e:
-<<<<<<< Updated upstream
         error_msg = f"Failed to process chat: {str(e)}\n{traceback.format_exc()}"
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
 
 
 # ===================== AI GRADER CHAT (Interactive follow-up) =====================
-=======
-        error_msg = f"Failed to generate roleplay: {str(e)}\n{traceback.format_exc()}"
-        logger.error(error_msg)
-        return JsonResponse({"error": error_msg}, status=500)
-
-# ===================== PDF GRADER =====================
-def extract_text_from_pdf(file):
-    try:
-        doc = fitz.open(stream=file.read(), filetype="pdf")
-        text = "".join(page.get_text() for page in doc)
-        if not text.strip():
-            raise ValueError("PDF contains no extractable text.")
-        return text
-    except Exception as e:
-        raise ValueError(f"Failed to read PDF: {str(e)}")
-
-@csrf_exempt
-def upload_pdf(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Invalid request method"}, status=405)
-    try:
-        pdf_file = request.FILES.get("file")
-        if not pdf_file:
-            return JsonResponse({"error": "No PDF file uploaded."}, status=400)
-
-        pdf_text = extract_text_from_pdf(pdf_file)
-        rubric_text = "Use standard DECA grading rubric."
-
-        rubric_file = request.FILES.get("rubric")
-        if rubric_file:
-            try:
-                rubric_candidate = extract_text_from_pdf(rubric_file)
-                if rubric_candidate.strip():
-                    rubric_text = rubric_candidate
-            except ValueError:
-                logger.warning("Rubric PDF extraction failed. Using default rubric.")
-
-        prompt = f"""
-You are a DECA written entry judge.
-Grade the following written entry using this rubric:
-{rubric_text}
-
-Written Entry:
-{pdf_text}
-
-Respond in **ChatGPT-style** format:
-- Grade out of 60
-- Bold section headers (I, II, III...)
-- Use dashes/bullets for feedback
-- Leave spacing between sections
-- **Include a final 'Actionable Suggestions / What to fix' section with numbered items**
-        """
-
-        response = client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert DECA judge. Format output like ChatGPT with bold headers, bullets, spacing, and actionable suggestions."},
-                {"role": "user", "content": prompt},
-            ],
-        )
-
-        feedback = response.choices[0].message.content.strip()
-        return JsonResponse({"feedback": feedback})
-
-    except Exception as e:
-        error_msg = f"Unexpected server error: {str(e)}\n{traceback.format_exc()}"
-        logger.error(error_msg)
-        return JsonResponse({"error": error_msg}, status=500)
-
-# ===================== AI GRADER CHAT =====================
->>>>>>> Stashed changes
 @csrf_exempt
 def chat_with_grader(request):
     if request.method != "POST":
@@ -243,17 +168,11 @@ def chat_with_grader(request):
         message = data.get("message", "")
         history = data.get("history", [])
 
-        system_msg = ( f"""
-            You are an AI DECA grader. Wait for the student to submit their full message before replying.
-            Provide constructive, detailed feedback in a polite and professional tone.
-            Use clear formatting, including:
-            - A main title
-            - Subheadings for each major area of feedback that are bold
-            - Bullet points or numbered lists for clarity
-            - Short, readable paragraphs
-
-            Always include a final 'Actionable Suggestions / What to fix' section.
-        """)
+        system_msg = (
+            "You are an AI DECA grader. Wait for the student to submit their full message before replying. "
+            "Provide constructive, detailed feedback in a polite and professional tone. "
+            "Always include a final 'Actionable Suggestions / What to fix' section."
+        )
 
         messages = [{"role": "system", "content": system_msg}]
         for msg in history:
@@ -271,7 +190,3 @@ def chat_with_grader(request):
         error_msg = f"Failed to continue chat: {str(e)}\n{traceback.format_exc()}"
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
