@@ -29,6 +29,7 @@
   </nav>
 </header>
 
+<<<<<<< Updated upstream
 <!-- Loading overlay -->
 <div id="loadingOverlay" class="loading-overlay" style="display:none;">
   <div class="spinner-container">
@@ -90,12 +91,45 @@
         cookie = cookie.trim();
         if (cookie.startsWith(name + '=')) {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+=======
+  <!-- Main -->
+<!-- Main -->
+    <main>
+      <div class="grader-container">
+        <h1>DEXTA AI Grader</h1>
+
+        <!-- Upload Form -->
+        <form id="graderForm" enctype="multipart/form-data" class="upload-box">
+          <label>Upload Written Entry (PDF)</label>
+          <input type="file" id="pdfFile" name="file" accept=".pdf" required>
+          <button type="submit" id="submitBtn">Submit for Evaluation</button>
+        </form>
+        
+      </div>
+    </main>
+
+
+  <script>
+    const form = document.getElementById("graderForm");
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+>>>>>>> Stashed changes
         }
       });
     }
     return cookieValue;
   }
   const csrfToken = getCookie('csrftoken');
+<<<<<<< Updated upstream
   
   // === Update chat area ===
   function updateChatBox() {
@@ -224,17 +258,46 @@
       if (y + lineHeight > 800) {
         doc.addPage();
         y = margin;
+=======
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("pdfFile");
+      if (!fileInput.files.length) return alert("Please select a PDF to upload.");
+
+    const margin = 40;
+    const lineHeight = 18;
+    const maxWidth = 500;
+
+      try {
+        await fetch("{% url 'upload_pdf' %}", {
+          method: "POST",
+          headers: { 'X-CSRFToken': csrfToken },
+          body: formData
+        });
+        alert("Your PDF has been submitted for evaluation.");
+      } catch (err) {
+        alert("Network error: " + err.message);
+>>>>>>> Stashed changes
       }
       doc.text(line, margin, y);
       y += lineHeight;
     });
+<<<<<<< Updated upstream
   
     const dateStr = new Date().toLocaleDateString().replace(/\//g, "-");
     doc.save(`DECA_Evaluation_${dateStr}.pdf`);
   });
+=======
+>>>>>>> Stashed changes
   </script>
   
   
 </body>
 </html>
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
