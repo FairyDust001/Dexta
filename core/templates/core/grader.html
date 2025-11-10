@@ -7,6 +7,14 @@
   <title>DEXTA | AI Grader</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'core/grader.css' %}">
+<!-- Font Awesome CDN -->
+<link 
+  rel="stylesheet" 
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+  integrity="sha512-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
+  crossorigin="anonymous" 
+  referrerpolicy="no-referrer" 
+/>
 </head>
 <body>
 <!-- Navbar -->
@@ -60,7 +68,9 @@
     </form>
 
     <!-- Feedback Box -->
-    <div id="chatBox" class="chat-box"></div>
+    <div id="chatBox" class="chat-box">
+      <p>↑↑↑ Click above to generate evaluation ↑↑↑</p>
+    </div>
 
     <!-- Control Buttons -->
     <div class="button-row">
@@ -72,6 +82,8 @@
 
 <footer class="footer">
   <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+  <p>Responses may be inaccurate or incomplete.</p>
+  <p>Powered by AI to enhance learning and judgment, not replace it.</p>
 </footer>
 
 <!-- jsPDF library for downloads -->

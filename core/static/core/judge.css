@@ -8,14 +8,25 @@
 html, body {
   height: 100%;
   font-family: 'Montserrat', sans-serif;
-  color: white;
-  background: radial-gradient(circle at top left, #03001e, #000, #01134e);
-  overflow-x: hidden;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  scroll-behavior: smooth;
+  background: linear-gradient(135deg, #03001e, #01134e, #300050, #8200ff);
+  background-size: 400% 400%; /* allows smooth movement */
+  animation: gradientMove 30s ease infinite;
+  color: #eaeaea;
+
+  display: flex;           /* make body a flex container */
+  flex-direction: column;  /* vertical stacking */
+}
+
+body {
+  flex: 1 0 auto; /* content will expand to fill space */
+}
+
+/* ===== ANIMATION ===== */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Navbar */
@@ -363,4 +374,13 @@ button:hover {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 30px;
+  color: #aaa;
+  background: transparent;
+  margin-top: auto; /* pushes footer to the bottom */
 }
