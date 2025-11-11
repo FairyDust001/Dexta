@@ -361,7 +361,7 @@ main {
 .footer {
   text-align: center;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.021);
   color: #aaa;
   position: relative;
 }

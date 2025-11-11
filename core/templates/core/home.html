@@ -51,80 +51,80 @@
     </main>
 
     <!-- Our Mission Section -->
-    <section id="mission" class="mission-section">
-        <div class="mission-left">
-            <h1 class="mission-title">Role of<br><span>DEXTA</span></h1>
-            <h3 class="mission-heading">DEXTA Mission Statement</h3>
-            <p class="mission-text">
-                Our mission at <strong>DEXTA</strong> is to empower the next generation of DECA competitors
-                by providing an <strong>intelligent</strong>, <strong>accessible</strong>, and
-                <strong>engaging</strong> platform for practice, preparation, and growth. We strive to bridge
-                technology and education, offering students the tools, feedback, and confidence they need to excel
-                in competition, develop leadership skills, and unlock their full potential.
-            </p>
-            <a href="#team" class="about-btn">Our Team↓</a>
-        </div>
-        <div class="mission-right">
-            <img src="{% static 'core/2.png' %}" alt="DECA Winner">
-        </div>
-    </section>
+        <section id="mission" class="mission-section">
+            <div class="mission-left">
+                <h1 class="mission-title">Role of<br><span>DEXTA</span></h1>
+                <h3 class="mission-heading">DEXTA Mission Statement</h3>
+                <p class="mission-text">
+                    Our mission at <strong>DEXTA</strong> is to empower the next generation of DECA competitors
+                    by providing an <strong>intelligent</strong>, <strong>accessible</strong>, and
+                    <strong>engaging</strong> platform for practice, preparation, and growth. We strive to bridge
+                    technology and education, offering students the tools, feedback, and confidence they need to excel
+                    in competition, develop leadership skills, and unlock their full potential.
+                </p>
+                <a href="#team" class="about-btn">Our Team↓</a>
+            </div>
+            <div class="mission-right">
+                <img src="{% static 'core/2.png' %}" alt="DECA Winner">
+            </div>
+        </section>
 
-        <!-- ===== FEATURES SECTION ===== -->
-    <section class="features" id="features">
-        <h2>Explore Our Features</h2>
-        <div class="feature-grid">
-        <div class="feature-card">
-            <h3>AI Grader</h3>
-            <p>Upload your project for instant, rubric-based AI feedback.</p>
-            <a href="{% url 'grader' %}" class="feature-btn">Go to Grader</a>
-        </div>
-        <div class="feature-card">
-            <h3>Chatbot</h3>
-            <p>Ask questions, get tips, and simulate DECA interviews.</p>
-            <a href="{% url 'judge' %}" class="feature-btn">Open Chatbot</a>
-        </div>
-        <div class="feature-card">
-            <h3>Digital Judge</h3>
-            <p>Experience real-time judging simulations to test your readiness.</p>
-            <a href="{% url 'judge' %}" class="feature-btn">Start Judging</a>
-        </div>
-        </div>
-    </section>
+            <!-- ===== FEATURES SECTION ===== -->
+        <section class="features" id="features">
+            <h2>Explore Our Features</h2>
+            <div class="feature-grid">
+            <div class="feature-card">
+                <h3>AI Grader</h3>
+                <p>Upload your project for instant, rubric-based AI feedback.</p>
+                <a href="{% url 'grader' %}" class="feature-btn">Go to Grader</a>
+            </div>
+            <div class="feature-card">
+                <h3>Chatbot</h3>
+                <p>Ask questions, get tips, and simulate DECA interviews.</p>
+                <a href="{% url 'judge' %}" class="feature-btn">Open Chatbot</a>
+            </div>
+            <div class="feature-card">
+                <h3>Digital Judge</h3>
+                <p>Experience real-time judging simulations to test your readiness.</p>
+                <a href="{% url 'judge' %}" class="feature-btn">Start Judging</a>
+            </div>
+            </div>
+        </section>
 
-    <!-- Team Section -->
-    <!-- <section id="team" class="team-section">  -->
-    <div id="team">
-        <div class="team-title">
-        <h1 style="font-weight: 700; font-size: 5rem;">The Team </h1>
-        <p><u>All variations of Founder: Iyonawan Adonri</u></p>
+        <!-- Team Section -->
+        <!-- <section id="team" class="team-section">  -->
+        <div id="team">
+            <div class="team-title">
+            <h1 style="font-weight: 700; font-size: 5rem;">The Team </h1>
+            <p><u>All variations of Founder: Iyonawan Adonri</u></p>
+            </div>
+            <br><br>
+            <div class="team-container">
+                <div class="character">
+                    <img src="{% static 'core/me1.png' %}" alt="The Engineer" class="character-img">
+                    <div class="team-card">
+                        <h3 class="team-role">The Engineer</h3>
+                        <p class="team-desc">Builds and maintains the product (Django backend, frontend, AI integration).</p>
+                    </div>
+                </div>
+                <div class="character">
+                    <img src="{% static 'core/me2.png' %}" alt="The Engineer" class="character-img">
+                    <div class="team-card">
+                        <!-- <img src="{% static 'core/character2.png' %}" alt="The CEO"> -->
+                        <h3 class="team-role">The CEO</h3>
+                        <p class="team-desc">Vision, leadership, partnerships, fundraising, and overall company direction.</p>
+                    </div>
+                </div>
+                <div class="character">
+                    <img src="{% static 'core/me3.png' %}" alt="The Engineer" class="character-img">
+                    <div class="team-card">
+                        <!-- <img src="{% static 'core/character3.png' %}" alt="The Visionary"> -->
+                        <h3 class="team-role">The Visionary</h3>
+                        <p class="team-desc">Ensures every step aligns with the mission, long-term goals, and guides innovation.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <br><br>
-        <div class="team-container">
-            <div class="character">
-                <img src="{% static 'core/me1.png' %}" alt="The Engineer" class="character-img">
-                <div class="team-card">
-                    <h3 class="team-role">The Engineer</h3>
-                    <p class="team-desc">Builds and maintains the product (Django backend, frontend, AI integration).</p>
-                </div>
-            </div>
-            <div class="character">
-                <img src="{% static 'core/me2.png' %}" alt="The Engineer" class="character-img">
-                <div class="team-card">
-                    <!-- <img src="{% static 'core/character2.png' %}" alt="The CEO"> -->
-                    <h3 class="team-role">The CEO</h3>
-                    <p class="team-desc">Vision, leadership, partnerships, fundraising, and overall company direction.</p>
-                </div>
-            </div>
-            <div class="character">
-                <img src="{% static 'core/me3.png' %}" alt="The Engineer" class="character-img">
-                <div class="team-card">
-                    <!-- <img src="{% static 'core/character3.png' %}" alt="The Visionary"> -->
-                    <h3 class="team-role">The Visionary</h3>
-                    <p class="team-desc">Ensures every step aligns with the mission, long-term goals, and guides innovation.</p>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- </section> -->
 
 
