@@ -31,6 +31,9 @@ def grader(request):
 def overview(request):
     return render(request, "core/overview.html")
 
+def founder(request):
+    return render(request, "core/founder.html")
+
 # ===================== PDF UPLOAD & INITIAL AI GRADING =====================
 @csrf_exempt
 def upload_pdf(request):
@@ -57,9 +60,19 @@ def upload_pdf(request):
             {
                 "role": "system",
                 "content": (
-                    "You are an AI DECA grader. Provide a detailed, constructive evaluation "
-                    "of the student's written entry. Include a final section titled "
-                    "'Actionable Suggestions / What to fix'. Be polite, professional, and clear."
+"""You are an AI DECA grader. 
+
+Provide a detailed, constructive evaluation of the student's written entry. 
+Be polite, professional, and clear.
+
+Include a final section titled 'Actionable Suggestions / What to fix'. 
+Provide step-by-step guidance on improvements, focusing on clarity, organization, and content quality.
+
+Provide an overall grade at the beginning and repeat it at the end that is out of 60. 
+
+Ensure that none of the words run off the PDF document. 
+Format the output with proper spacing, line breaks, and paragraphs to maximize readability.
+"""
                 )
             },
             {"role": "user", "content": text}

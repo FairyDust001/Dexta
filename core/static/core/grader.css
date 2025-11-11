@@ -64,6 +64,8 @@ a {
 
 .nav-links li a:hover {
   color: rgb(156, 95, 214);
+  border-radius: 5px; 
+
 }
 
 .arrow {

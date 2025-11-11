@@ -25,7 +25,7 @@
                 </ul>
             </li>
             <li class="dropdown">
-                <a style="color:rgb(73, 72, 72)" class="active">Test Prep</a>
+                <a href="{% url 'overview' %}" class="active">Overview</a>
             </li>
             <li class="dropdown">
                 <a href="{% url 'judge' %}">Digital Judge</a>
@@ -33,7 +33,7 @@
             <li class="dropdown">
                 <a href="{% url 'grader' %}">AI Grader</a>
             </li>
-            <li><a style="color:rgb(73, 72, 72)">Sign In</a></li>
+            <li><a href="{% url 'founder' %}">Founder</a></li>
         </ul>
     </nav>
 </header>
@@ -68,10 +68,37 @@
             <img src="{% static 'core/2.png' %}" alt="DECA Winner">
         </div>
     </section>
+
+        <!-- ===== FEATURES SECTION ===== -->
+    <section class="features" id="features">
+        <h2>Explore Our Features</h2>
+        <div class="feature-grid">
+        <div class="feature-card">
+            <h3>AI Grader</h3>
+            <p>Upload your project for instant, rubric-based AI feedback.</p>
+            <a href="{% url 'grader' %}" class="feature-btn">Go to Grader</a>
+        </div>
+        <div class="feature-card">
+            <h3>Chatbot</h3>
+            <p>Ask questions, get tips, and simulate DECA interviews.</p>
+            <a href="{% url 'judge' %}" class="feature-btn">Open Chatbot</a>
+        </div>
+        <div class="feature-card">
+            <h3>Digital Judge</h3>
+            <p>Experience real-time judging simulations to test your readiness.</p>
+            <a href="{% url 'judge' %}" class="feature-btn">Start Judging</a>
+        </div>
+        </div>
+    </section>
+
     <!-- Team Section -->
     <!-- <section id="team" class="team-section">  -->
     <div id="team">
-        <h1 class="team-title">The Team</h1>
+        <div class="team-title">
+        <h1 style="font-weight: 700; font-size: 5rem;">The Team </h1>
+        <p><u>All variations of Founder: Iyonawan Adonri</u></p>
+        </div>
+        <br><br>
         <div class="team-container">
             <div class="character">
                 <img src="{% static 'core/me1.png' %}" alt="The Engineer" class="character-img">

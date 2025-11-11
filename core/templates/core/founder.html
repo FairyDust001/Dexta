@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder | DEXTA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/founder.css' %}">
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="navbar">
+    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <nav>
+        <ul class="nav-links">
+            <li class="dropdown">
+                <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#mission">Our Mission</a></li>
+                    <li><a href="#team">The Team</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'overview' %}" class="active">Overview</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'judge' %}">Digital Judge</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'grader' %}">AI Grader</a>
+            </li>
+            <li><a href="{% url 'founder' %}">Founder</a></li>
+        </ul>
+    </nav>
+</header>
+    <!-- Founder Section -->
+    <section class="founder-section">
+        <div class="founder-left">
+            <img src="" alt="Founder Photo" class="founder-photo">
+        </div>
+        <div class="founder-right">
+            <h1 class="founder-name">IYONAWAN A.</h1>
+            <h3 class="founder-title">Founder of DEXTA</h3>
+            <p class="founder-bio">
+             Meet Iyonawan Adonri, the visionary behind DEXTA. A senior in high school and an active leader across campus, Iyonawan created DEXTA to provide <b>all</b> students the tools and guidance they need to excel in competitions. Through AI-assisted practice, real-time judging simulations, and personalized feedback, DEXTA bridges education and technology, empowering the next generation of DECA competitors to reach their full potential.</p>
+            <div class="founder-socials">
+                <a href="https://www.linkedin.com/in/iyonawan-adonri/" target="_blank">LinkedIn</a>
+                <a href="https://github.com/FairyDust001" target="_blank">GitHub</a>
+                <a href="mailto:iyonawanadonri@gmail.com">Email</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+  <p>&copy; 2025 DEXTA. All Rights Reserved. <br>
+    Responses may be inaccurate or incomplete.<br>
+    Powered by AI to enhance learning and judgment, not replace it.</p>
+</footer>
+
+</body>
+</html>

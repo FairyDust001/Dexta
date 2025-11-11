@@ -11,22 +11,28 @@
 <body>
 <!-- Navbar -->
 <header class="navbar">
-  <a href="{% url 'home' %}"><h1 style="font-size: 30px;" class="logo">DEXTA</h1></a>
-  <nav>
-    <ul class="nav-links">
-      <li class="dropdown">
-        <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
-        <ul class="dropdown-menu">
-          <li><a href="#mission">Our Mission</a></li>
-          <li><a href="#team">The Team</a></li>
+    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <nav>
+        <ul class="nav-links">
+            <li class="dropdown">
+                <a href="{% url 'home' %}">Home <span class="arrow">&#9662;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#mission">Our Mission</a></li>
+                    <li><a href="#team">The Team</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'overview' %}" class="active">Overview</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'judge' %}">Digital Judge</a>
+            </li>
+            <li class="dropdown">
+                <a href="{% url 'grader' %}">AI Grader</a>
+            </li>
+            <li><a href="{% url 'founder' %}">Founder</a></li>
         </ul>
-      </li>
-      <li class="dropdown"><a style="color:rgb(73,72,72)" class="active">Test Prep</a></li>
-      <li class="dropdown"><a href="{% url 'judge' %}">Digital Judge</a></li>
-      <li class="dropdown"><a href="{% url 'grader' %}">AI Grader</a></li>
-      <li><a style="color:rgb(73,72,72)">Sign In</a></li>
-    </ul>
-  </nav>
+    </nav>
 </header>
 
 <!-- Main Role Play Container -->
@@ -61,7 +67,7 @@
 
     </div>
 
-    <div id="prompt-display" class="prompt-display"></div>
+    <div id="prompt-display" class="prompt-display" style="text-align: center;">↑↑↑ Click above to generate evaluation ↑↑↑</div>
 
     <div id="timer-container" class="hidden">
       <p>Prep Time Remaining: <span id="timer">10:00</span></p>

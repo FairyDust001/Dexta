@@ -12,9 +12,18 @@ html, body {
     flex-direction: column;
     scroll-behavior: smooth;
     scroll-padding-top: -100%;
+    background: linear-gradient(135deg, #03001e, #01134e, #300050, #2a0052);
+    background-size: 400% 400%; /* allows smooth movement */
+    animation: gradientMove 30s ease infinite;
+
 }
 
-
+/* ===== ANIMATION ===== */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
 /* Navbar */
 .navbar {
@@ -100,8 +109,11 @@ a:link {
     padding-top: 40px; /* offset for fixed navbar */
     position: relative;
     overflow: hidden;
-    background-image: url("../core/waves.png"); /* path relative to style.css */
-    background-size: cover;       /* fill the entire viewport */
+    /* Combine animated gradient + background image */
+    background-image: 
+        linear-gradient(135deg, rgba(3, 0, 30, 0.011), rgba(48, 0, 80, 0.075)), /* semi-transparent gradient overlay */
+        url("../core/waves.png"); /* actual background image */
+    background-size: cover;       /* cover entire viewport */
     background-position: center;  /* center the image */
     background-repeat: no-repeat; /* no tiling */
 }
@@ -203,7 +215,9 @@ a:link {
     align-items: center;
     min-height: 100vh;
     padding: 150px 80px;
-    background: linear-gradient(90deg, #000000 50%, #0b0170 50%);
+    /* background: linear-gradient(135deg, #000000 50%, #03001e, #01134e, #300050, #8200ff);
+    background-size: 400% 400%; allows smooth movement
+    animation: gradientMove 30s ease infinite; */
     color: white;
     gap: 50px;
 }
@@ -218,7 +232,13 @@ a:link {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* background: linear-gradient(135deg, #03001e, #01134e, #300050, #8200ff);
+    background-size: 400% 400%; /* allows smooth movement */
+    /* animation: gradientMove 30s ease infinite; */
+    color: #eaeaea;
 }
+
+
 
 .mission-right img {
     width: 480px;
@@ -318,8 +338,57 @@ a:link {
     right: -150px;
 } */
 
+/* ===== FEATURES GRID ===== */
+.features{
+    /* background: linear-gradient(135deg, #000000 50%, #03001e, #01134e, #300050, #8200ff);
+    background-size: 400% 400%; allows smooth movement
+    animation: gradientMove 30s ease infinite; */
+    text-align: center;
+        color: white;
+        padding: 5%;
+
+}
+.features .feature-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+ }
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(189, 189, 189, 0.2);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+  flex: 1 1 300px;
+  min-width: 260px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(255, 153, 255, 0.2);
+}
+
+.feature-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  color: #fff;
+  border: 1px solid #ffb3ff;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.feature-btn:hover {
+  background: rgba(255, 153, 255, 0.2);
+}
+
 #team{
-    background-image: url("../core/waves1.png"); /* path relative to style.css */
+    /* background-image: url("../core/waves1.png"); path relative to style.css */
 
 }
 
@@ -348,11 +417,22 @@ a:link {
     color:white
 }
 
-.team-title {
+/* .team-title {
     font-size: 5rem;
     font-weight: 700;
-    margin-bottom: 80px;
+    margin-bottom: 10px;
 }
+
+.team-text{
+    position: relative;
+    z-index: 3; ensures they're above background
+    text-align: center;
+    padding: 10%;
+    color:white;
+    font-weight: 20;
+    margin-top: 100px;
+
+} */
 
 /* Card layout */
 .team-container {
@@ -422,7 +502,7 @@ a:link {
     text-align: center;
     padding: 30px; 
     color: #aaa; 
-    background: #000000;
+    background: #00000031;
   }
   
 
