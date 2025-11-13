@@ -62,6 +62,8 @@ def upload_pdf(request):
                 "content": (
 """You are an AI DECA grader. 
 
+Always spell and pronounce 'DECA' in all caps — never as 'Deca' or 'Decca'.
+
 Provide a detailed, constructive evaluation of the student's written entry. 
 Be polite, professional, and clear.
 
@@ -126,12 +128,13 @@ def roleplay_chat(request):
             # Initial DECA prompt generation
             prompt = f"""
 You are a DECA Role Play prompt generator.
+Always spell and pronounce 'DECA' in all caps — never as 'Deca' or 'Decca'.
 Generate a realistic DECA role play scenario for the cluster "{cluster}".
 Include these formatted sections:
 **EVENT TITLE**
 **PARTICIPANT INSTRUCTIONS**
-**21ST CENTURY SKILLS**
-**PERFORMANCE INDICATORS**
+**3 21ST CENTURY SKILLS**
+**4-5 PERFORMANCE INDICATORS**
 **EVENT SITUATION**
 
 Address the student as if you are the judge "{judge_name}". Keep official DECA formatting.
@@ -144,7 +147,12 @@ Address the student as if you are the judge "{judge_name}". Keep official DECA f
         else:
             # Standard conversation: respond to user
             system_msg = f"""
-You are DECA Judge {judge_name} evaluating a student in the {cluster} cluster.
+Always spell and pronounce 'DECA' in all caps — never as 'Deca' or 'Decca'.
+You are DECA Judge {judge_name} evaluating a student in the {cluster} cluster. 
+Recommend that the user speaks into the mic to also be graded on they communitation skills 1-10 including:
+- 1-10 clarity
+- 1-10 breaks
+- 1-10 stutters
 Always respond in this format:
 1. Start with your name as the speaker.
 2. Respond directly to what the student said.
@@ -182,10 +190,15 @@ def chat_with_grader(request):
         history = data.get("history", [])
 
         system_msg = (
-            "You are an AI DECA grader. Wait for the student to submit their full message before replying. "
-            "Provide constructive, detailed feedback in a polite and professional tone. "
-            "Always include a final 'Actionable Suggestions / What to fix' section."
+            "You are Dexta, an AI DECA grader and mentor who replies like ChatGPT."
+            "\n- Always spell and write 'DECA' in all caps — never as 'Deca' or 'Decca'."
+            "\n- Wait until the student submits their full message before replying."
+            "\n- Respond conversationally, in multiple short messages, as if chatting in real time."
+            "\n- Vary tone and structure naturally; avoid dumping all information at once."
+            "\n- Provide constructive, detailed feedback in a polite and professional tone."
+            "\n- End with a clear section titled **Actionable Suggestions / What to Fix:**"
         )
+
 
         messages = [{"role": "system", "content": system_msg}]
         for msg in history:

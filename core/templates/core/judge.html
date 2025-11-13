@@ -90,6 +90,9 @@
       <button id="restart-chat-btn" style="margin-left:10px;">Restart</button>
     </div>
   </div>
+
+  <div id="mic-indicator" class="mic-indicator"></div>
+
 </main>
 
 <footer class="footer">
@@ -145,15 +148,28 @@
   populateJudges();
   
   // Speak text using TTS
-  function speakText(text) {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.rate = 1;
-      window.speechSynthesis.speak(utterance);
-    }
+  function speakText(text, callback) {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+
+    if (recognition) recognition.stop(); // stop mic while speaking
+    updateMicIndicator(false);
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 1;
+
+    utterance.onend = () => {
+      if (callback) callback(); // restart mic when done
+      updateMicIndicator(true);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  } else if (callback) {
+    callback();
   }
+}
+
   
   // Add message instantly (no typing animation)
   function addMessage(sender, text) {
@@ -255,7 +271,7 @@
   
     const intro = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
     addMessage("ai", intro);
-    speakText(intro);
+    speakText(intro, startSpeechRecognition);
   
     startSpeechRecognition();
   }
@@ -296,7 +312,7 @@
       });
       const data = await res.json();
       addMessage("ai", data.reply);
-      speakText(data.reply);
+      speakText(data.reply, startSpeechRecognition);
     } catch {
       addMessage("ai", "Error generating evaluation.");
     }
@@ -328,7 +344,7 @@
       if (data.error) addMessage("ai", "⚠️ " + data.error);
       else {
         addMessage("ai", data.reply);
-        speakText(data.reply);
+        speakText(data.reply, startSpeechRecognition);
         conversationHistory.push({ role: "assistant", content: data.reply });
       }
     } catch {
