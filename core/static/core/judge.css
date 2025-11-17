@@ -348,6 +348,7 @@ button:hover {
   border-radius: 15px 15px 15px 5px;
   padding: 10px 15px;
   text-align: left;
+  justify-content: flex-start;  /* align to left */
 }
 
 
@@ -382,7 +383,7 @@ button:hover {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background-color: rgba(255, 0, 0, 0.4);
+  background-color: rgba(73, 73, 73, 0.4);
   box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
   margin-left: 10px;
   display: inline-block;
@@ -391,8 +392,8 @@ button:hover {
 }
 
 .mic-indicator.active {
-  background-color: #00ffcc;
-  box-shadow: 0 0 15px #00ffcc;
+  background-color: rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 15px #2c2c2c;
   animation: pulse 1.5s infinite;
 }
 

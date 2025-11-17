@@ -216,3 +216,16 @@ def chat_with_grader(request):
         error_msg = f"Failed to continue chat: {str(e)}\n{traceback.format_exc()}"
         logger.error(error_msg)
         return JsonResponse({"error": error_msg}, status=500)
+
+# ===================== Microphone (Interactive follow-up) =====================
+
+import time
+
+client = OpenAI()
+
+def realtime_token(request):
+    token = client.realtime.tokens.create(
+        expires_in=3600,
+        model="gpt-4o-mini-realtime"
+    )
+    return JsonResponse({ "token": token.client_token })

@@ -7,11 +7,12 @@
   <title>Digital Judge | DEXTA</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'core/judge.css' %}">
+
 </head>
 <body>
 <!-- Navbar -->
 <header class="navbar">
-    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <a href="{% url 'home' %}"> <h1 class="logo" style="font-size: 30px;">DEXTA</h1> </a>
     <nav>
         <ul class="nav-links">
             <li class="dropdown">
@@ -63,13 +64,14 @@
     <div class="button-row">
       <button id="generate-prompt-btn">Generate Prompt</button>
       <button id="restart-prep-btn" style="margin-left:10px;">Restart</button>
-      <button id="go-chat-btn" style="margin-left:10px; background-color: rgb(85, 49, 119); border: 1px solid rgb(184, 138, 226); color: rgb(156, 95, 214);">Go to Chatbot</button>
-
+      <button id="go-chat-btn" class="floating-chat-btn">Go to Chatbot</button>
     </div>
 
-    <div id="prompt-display" class="prompt-display" style="text-align: center;">↑↑↑ Click above to generate evaluation ↑↑↑</div>
+    <div id="prompt-display" class="prompt-display" style="text-align:center;" aria-live="polite">
+      ↑↑↑ Click above to generate evaluation ↑↑↑
+    </div>
 
-    <div id="timer-container" class="hidden">
+    <div id="timer-container" class="hidden" aria-live="polite">
       <p>Prep Time Remaining: <span id="timer">10:00</span></p>
       <button id="continue-btn">Continue to Judge</button>
     </div>
@@ -78,21 +80,19 @@
   <!-- === JUDGE CHAT PHASE === -->
   <div id="chat-phase" class="roleplay-container hidden">
     <div id="chat-box" class="chat-box">
-      
+      <!-- Messages and typing indicator dynamically added -->
     </div>
-    <div id="chat-timer" class="hidden">
+    <div id="chat-timer" class="hidden" aria-live="polite">
       <p>Judge Session Time Remaining: <span id="chat-timer-display">10:00</span></p>
     </div>
-    <textarea id="user-input" placeholder="Type your response..." rows="2"></textarea>
+    <textarea id="user-input" placeholder="Type your response or use voice..." rows="2" aria-label="User response"></textarea>
     <div class="chat-buttons">
       <button id="send-btn">Send</button>
       <button id="speak-btn">Speak</button>
       <button id="restart-chat-btn" style="margin-left:10px;">Restart</button>
+      <div id="mic-indicator" class="mic-indicator" title="Microphone status"></div>
     </div>
   </div>
-
-  <div id="mic-indicator" class="mic-indicator"></div>
-
 </main>
 
 <footer class="footer">
@@ -100,6 +100,7 @@
   <p>Responses may be inaccurate or incomplete.</p>
   <p>Powered by AI to enhance learning and judgment, not replace it.</p>
 </footer>
+
 
 
 <script>
@@ -118,12 +119,14 @@
   const judgeSelect = document.getElementById("judge-select");
   const restartPrepBtn = document.getElementById("restart-prep-btn");
   const restartChatBtn = document.getElementById("restart-chat-btn");
-  const goChatBtn = document.getElementById("go-chat-btn"); // NEW
+  const goChatBtn = document.getElementById("go-chat-btn");
+  const micIndicator = document.getElementById("mic-indicator");
   
   let conversationHistory = [];
-  let countdownInterval, chatCountdown, recognition;
+  let countdownInterval, chatCountdown;
   let isWaitingForUser = true;
   
+  // ================== Judges ==================
   const JUDGES = {
     "Business Administration Core": ["Judge Alice", "Judge Bob"],
     "Finance Cluster": ["Judge Carol", "Judge Dave"],
@@ -133,7 +136,6 @@
     "Personal Financial Literacy": ["Judge Kyle", "Judge Laura"]
   };
   
-  // Populate judges based on cluster selection
   function populateJudges() {
     const selectedCluster = clusterSelect.value;
     judgeSelect.innerHTML = "";
@@ -147,31 +149,7 @@
   clusterSelect.addEventListener("change", populateJudges);
   populateJudges();
   
-  // Speak text using TTS
-  function speakText(text, callback) {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-
-    if (recognition) recognition.stop(); // stop mic while speaking
-    updateMicIndicator(false);
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 1;
-
-    utterance.onend = () => {
-      if (callback) callback(); // restart mic when done
-      updateMicIndicator(true);
-    };
-
-    window.speechSynthesis.speak(utterance);
-  } else if (callback) {
-    callback();
-  }
-}
-
-  
-  // Add message instantly (no typing animation)
+  // ================== Chat Helpers ==================
   function addMessage(sender, text) {
     const msgWrapper = document.createElement("div");
     msgWrapper.classList.add("message", sender);
@@ -183,67 +161,41 @@
     chatBox.scrollTop = chatBox.scrollHeight;
   }
   
-  // Floating typing indicator
   function showTypingIndicator() {
-    let indicator = document.getElementById("typing-indicator");
-    if (!indicator) {
-      indicator = document.createElement("div");
-      indicator.id = "typing-indicator";
-      indicator.className = "typing-indicator";
-      indicator.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
-      chatBox.appendChild(indicator);
-    }
-    indicator.style.display = "flex";
+    const msgWrapper = document.createElement("div");
+    msgWrapper.classList.add("message", "ai");
+    const indicator = document.createElement("div");
+    indicator.className = "typing-indicator";
+    indicator.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+    msgWrapper.appendChild(indicator);
+    chatBox.appendChild(msgWrapper);
     chatBox.scrollTop = chatBox.scrollHeight;
+    return msgWrapper;
   }
   
-  function hideTypingIndicator() {
-    const indicator = document.getElementById("typing-indicator");
-    if (indicator) indicator.style.display = "none";
+  function hideTypingIndicator(wrapper) {
+    if (wrapper) wrapper.remove();
   }
   
-  // Generate DECA Role Play prompt
-  generatePromptBtn.addEventListener("click", async () => {
-    const cluster = clusterSelect.value;
-    const judge = judgeSelect.value;
-    promptDisplay.innerHTML = "<em>Generating your DECA Role Play prompt...</em>";
-    generatePromptBtn.disabled = true;
+  // ================== TTS ==================
+  function speakText(text, callback) {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      stopRecording();
+      updateMicIndicator(false);
   
-    try {
-      const res = await fetch("/roleplay_chat/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "Generate DECA role play prompt", history: [], cluster, judge }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 1;
+      utterance.onend = () => {
+        if (callback) callback();
+        updateMicIndicator(true);
+      };
+      window.speechSynthesis.speak(utterance);
+    } else if (callback) callback();
+  }
   
-      promptDisplay.innerHTML = `
-        <div class="deca-paper">
-          ${data.reply
-            .split("\n")
-            .map(line => {
-              line = line.trim();
-              if (!line) return "";
-              line = line.replace(/\*\*(.*?)\*\*/g, "$1");
-              if (line.match(/^[A-Z\s]+$/)) return `<strong>${line}</strong>`;
-              if (line.startsWith("- ")) return `<p class="bullet">${line}</p>`;
-              if (line.match(/^\d+\./)) return `<p class="numbered">${line}</p>`;
-              return `<p>${line}</p>`;
-            })
-            .join("")}
-        </div>
-      `;
-      speakText("Your DECA role-play prompt is ready. You have ten minutes to prepare.");
-      startTimer(10);
-    } catch (err) {
-      promptDisplay.innerHTML = `<p style='color:red;'>Error generating prompt: ${err}</p>`;
-    } finally {
-      generatePromptBtn.disabled = false;
-    }
-  });
-  
-  // Prep timer
+  // ================== Timer ==================
   function startTimer(minutes) {
     let time = minutes * 60;
     timerContainer.classList.remove("hidden");
@@ -262,28 +214,6 @@
     continueBtn.classList.remove("hidden");
   }
   
-  // Start judge phase
-  function startJudgePhase() {
-    clearInterval(countdownInterval);
-    prepPhase.classList.add("hidden");
-    chatPhase.classList.remove("hidden");
-    startChatTimer(10);
-  
-    const intro = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
-    addMessage("ai", intro);
-    speakText(intro, startSpeechRecognition);
-  
-    startSpeechRecognition();
-  }
-  
-  continueBtn.addEventListener("click", startJudgePhase);
-  
-  // NEW: Go straight to chat
-  goChatBtn.addEventListener("click", () => {
-    startJudgePhase();
-  });
-  
-  // Chat timer
   function startChatTimer(minutes) {
     const timer = document.getElementById("chat-timer-display");
     let time = minutes * 60;
@@ -301,24 +231,7 @@
     }, 1000);
   }
   
-  // Generate evaluation after conversation ends
-  async function generateEvaluation() {
-    addMessage("ai", "⏳ Time’s up! Generating your evaluation...");
-    try {
-      const res = await fetch("/roleplay_chat/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "Evaluate presenter performance", history: conversationHistory, evaluate: true }),
-      });
-      const data = await res.json();
-      addMessage("ai", data.reply);
-      speakText(data.reply, startSpeechRecognition);
-    } catch {
-      addMessage("ai", "Error generating evaluation.");
-    }
-  }
-  
-  // Send message
+  // ================== Chat ==================
   async function sendMessage(message) {
     if (!message || !isWaitingForUser) return;
     isWaitingForUser = false;
@@ -326,7 +239,7 @@
     addMessage("user", message);
     conversationHistory.push({ role: "user", content: message });
   
-    showTypingIndicator();
+    const typingIndicator = showTypingIndicator();
   
     try {
       const res = await fetch("/roleplay_chat/", {
@@ -340,37 +253,91 @@
         }),
       });
       const data = await res.json();
-      hideTypingIndicator();
+      hideTypingIndicator(typingIndicator);
+  
       if (data.error) addMessage("ai", "⚠️ " + data.error);
       else {
         addMessage("ai", data.reply);
-        speakText(data.reply, startSpeechRecognition);
+        speakText(data.reply, startRecording);
         conversationHistory.push({ role: "assistant", content: data.reply });
       }
     } catch {
-      hideTypingIndicator();
+      hideTypingIndicator(typingIndicator);
       addMessage("ai", "Error processing your request.");
     } finally {
       isWaitingForUser = true;
     }
   }
   
-  // Speech recognition
-  function startSpeechRecognition() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return alert("Speech recognition not supported.");
-    recognition = new SR();
-    recognition.lang = "en-US";
+  // ================== Mic (Web Speech API) ==================
+  let recognition;
+  
+  function updateMicIndicator(active) {
+    if (active) micIndicator.classList.add("active");
+    else micIndicator.classList.remove("active");
+  }
+  
+  let isRecording = false;
+  
+  speakBtn.addEventListener("click", () => {
+    if (!isRecording) startRecording();
+    else stopRecording();
+  });
+  
+  function startRecording() {
+    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+      alert("Your browser does not support speech recognition.");
+      return;
+    }
+  
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.onresult = e => {
-      const transcript = e.results[e.results.length - 1][0].transcript.trim();
-      userInput.value = transcript;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+  
+    recognition.onstart = () => {
+      isRecording = true;
+      updateMicIndicator(true);
     };
+  
+    recognition.onresult = (event) => {
+      let interimTranscript = "";
+      let finalTranscript = "";
+  
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) finalTranscript += transcript;
+        else interimTranscript += transcript;
+      }
+  
+      userInput.value = finalTranscript + interimTranscript;
+    };
+  
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event);
+      stopRecording();
+    };
+  
+    recognition.onend = () => {
+      stopRecording();
+      if (userInput.value.trim()) {
+        sendMessage(userInput.value.trim());
+        userInput.value = "";
+      }
+    };
+  
     recognition.start();
   }
   
-  // Event listeners
+  function stopRecording() {
+    if (!isRecording) return;
+    recognition.stop();
+    isRecording = false;
+    updateMicIndicator(false);
+  }
+  
+  // ================== Event Listeners ==================
   sendBtn.addEventListener("click", () => {
     const msg = userInput.value.trim();
     userInput.value = "";
@@ -386,9 +353,73 @@
     }
   });
   
-  speakBtn.addEventListener("click", () => recognition && recognition.start());
   restartPrepBtn.addEventListener("click", () => location.reload());
   restartChatBtn.addEventListener("click", () => location.reload());
+  
+  // ================== DECA Flow ==================
+  generatePromptBtn.addEventListener("click", async () => {
+    const cluster = clusterSelect.value;
+    const judge = judgeSelect.value;
+    promptDisplay.innerHTML = "<em>Generating your DECA Role Play prompt...</em>";
+    generatePromptBtn.disabled = true;
+  
+    try {
+      const res = await fetch("/roleplay_chat/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "Generate DECA role play prompt", history: [], cluster, judge }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+  
+      promptDisplay.innerHTML = `<div class="deca-paper">${data.reply.split("\n").map(line=>{
+        line=line.trim();
+        if(!line) return "";
+        if(line.match(/^[A-Z\s]+$/)) return `<strong>${line}</strong>`;
+        if(line.startsWith("- ")) return `<p class="bullet">${line}</p>`;
+        if(line.match(/^\d+\./)) return `<p class="numbered">${line}</p>`;
+        return `<p>${line}</p>`;
+      }).join("")}</div>`;
+  
+      speakText("Your DECA role-play prompt is ready. You have ten minutes to prepare.", startRecording);
+      startTimer(10);
+    } catch (err) {
+      promptDisplay.innerHTML = `<p style='color:red;'>Error generating prompt: ${err}</p>`;
+    } finally {
+      generatePromptBtn.disabled = false;
+    }
+  });
+  
+  continueBtn.addEventListener("click", startJudgePhase);
+  goChatBtn.addEventListener("click", startJudgePhase);
+  
+  function startJudgePhase() {
+    clearInterval(countdownInterval);
+    prepPhase.classList.add("hidden");
+    chatPhase.classList.remove("hidden");
+    startChatTimer(10);
+  
+    const intro = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
+    addMessage("ai", intro);
+    speakText(intro, startRecording);
+  }
+  
+  // ================== Evaluation ==================
+  async function generateEvaluation() {
+    addMessage("ai", "⏳ Time’s up! Generating your evaluation...");
+    try {
+      const res = await fetch("/roleplay_chat/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "Evaluate presenter performance", history: conversationHistory, evaluate: true }),
+      });
+      const data = await res.json();
+      addMessage("ai", data.reply);
+      speakText(data.reply, startRecording);
+    } catch {
+      addMessage("ai", "Error generating evaluation.");
+    }
+  }
   </script>
   
 </body>

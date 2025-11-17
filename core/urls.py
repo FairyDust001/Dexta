@@ -19,4 +19,7 @@ urlpatterns = [
 
     # AI Grader follow-up chat
     path("chat_with_grader/", views.chat_with_grader, name="chat_with_grader"),
+
+    path("realtime_token/", views.realtime_token),
+
 ]
