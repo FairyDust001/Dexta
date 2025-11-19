@@ -152,6 +152,26 @@
                 }
             });
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const navbar = document.querySelector('.navbar');
+    const missionSection = document.querySelector('#mission');
+
+    // Get the Y-position where navbar should change
+    const missionStart = missionSection.offsetTop;
+
+    function changeNavbarBackground() {
+        if (window.scrollY >= missionStart - 50) {  
+            // -50 makes it activate slightly before the exact line
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    }
+
+    window.addEventListener('scroll', changeNavbarBackground);
+    changeNavbarBackground();
+});
     </script>
       
 </body>
