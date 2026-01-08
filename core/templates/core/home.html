@@ -5,16 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEXTA</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
 
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
 </head>
 <body>
-<!-- Navbar -->
+
 <header class="navbar">
-    <a href="{% url 'home' %}"> <h1 style="font-size: 30px;" class="logo">DEXTA</h1> </a>
+    <a href="{% url 'home' %}">
+        <h1 style="font-size: 30px;" class="logo">DEXTA</h1>
+    </a>
     <nav>
         <ul class="nav-links">
             <li class="dropdown">
@@ -24,55 +24,49 @@
                     <li><a href="#team">The Team</a></li>
                 </ul>
             </li>
-            <li class="dropdown">
-                <a href="{% url 'overview' %}" class="active">Overview</a>
-            </li>
-            <li class="dropdown">
-                <a href="{% url 'judge' %}">Digital Judge</a>
-            </li>
-            <li class="dropdown">
-                <a href="{% url 'grader' %}">AI Grader</a>
-            </li>
+            <li><a href="{% url 'overview' %}">Overview</a></li>
+            <li><a href="{% url 'judge' %}">Digital Judge</a></li>
+            <li><a href="{% url 'grader' %}">AI Grader</a></li>
             <li><a href="{% url 'founder' %}">Founder</a></li>
         </ul>
     </nav>
 </header>
 
+<!-- HERO (unchanged) -->
+<main class="hero">
+    <div class="hero-content">
+        <p style="font-weight: 500; font-size:150%;">Your Digital Path Towards Glass</p>
+        <h1 style="font-size: 120px; margin-top: -10%;">DEXTA</h1>
+        <button class="cta-btn" onclick="window.location.href='{% url 'overview' %}'">
+            Just Compete
+        </button>
+    </div>
+</main>
 
-    <!-- Hero Section -->
-    <main class="hero">
-        <div class="hero-content">
-            <p style="font-weight: 500; font-size:150%;">Your Digital Path Towards Glass</p>
-            <h1 style="font-size: 120px; margin-top: -10%;">DEXTA</h1>
-            <button class="cta-btn" onclick="window.location.href='{% url 'overview' %}'">
-                Just Compete
-              </button>
+<!-- 🔥 CONTINUOUS BACKGROUND STARTS HERE -->
+<div class="after-hero">
+
+    <section id="mission" class="mission-section">
+        <div class="mission-left">
+            <h1 class="mission-title">Role of<br><span>DEXTA</span></h1>
+            <h3 class="mission-heading">DEXTA Mission Statement</h3>
+            <p class="mission-text">
+                Our mission at <strong>DEXTA</strong> is to empower the next generation of DECA competitors
+                by providing an <strong>intelligent</strong>, <strong>accessible</strong>, and
+                <strong>engaging</strong> platform for practice, preparation, and growth.
+            </p>
+            <a href="#team" class="about-btn">Our Team↓</a>
         </div>
-    </main>
+        <div class="mission-right">
+            <video autoplay muted loop playsinline width="400" style="border-radius: 16px; margin-left: 100px;">
+                <source src="{% static 'core/decavid.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </section>
 
-    <!-- Our Mission Section -->
-        <section id="mission" class="mission-section">
-            <div class="mission-left">
-                <h1 class="mission-title">Role of<br><span>DEXTA</span></h1>
-                <h3 class="mission-heading">DEXTA Mission Statement</h3>
-                <p class="mission-text">
-                    Our mission at <strong>DEXTA</strong> is to empower the next generation of DECA competitors
-                    by providing an <strong>intelligent</strong>, <strong>accessible</strong>, and
-                    <strong>engaging</strong> platform for practice, preparation, and growth. We strive to bridge
-                    technology and education, offering students the tools, feedback, and confidence they need to excel
-                    in competition, develop leadership skills, and unlock their full potential.
-                </p>
-                <a href="#team" class="about-btn">Our Team↓</a>
-            </div>
-            <div class="mission-right">
-                <img src="{% static 'core/2.png' %}" alt="DECA Winner">
-            </div>
-        </section>
-
-            <!-- ===== FEATURES SECTION ===== -->
-        <section class="features" id="features">
-            <h2>Explore Our Features</h2>
-            <div class="feature-grid">
+    <section class="features" id="features">
+        <h2>Explore Our Features</h2>
+        <div class="feature-grid">
             <div class="feature-card">
                 <h3>AI Grader</h3>
                 <p>Upload your project for instant, rubric-based AI feedback.</p>
@@ -85,55 +79,58 @@
             </div>
             <div class="feature-card">
                 <h3>Digital Judge</h3>
-                <p>Experience real-time judging simulations to test your readiness.</p>
+                <p>Experience real-time judging simulations.</p>
                 <a href="{% url 'judge' %}" class="feature-btn">Start Judging</a>
             </div>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Team Section -->
-        <!-- <section id="team" class="team-section">  -->
-        <div id="team">
-            <div class="team-title">
-            <h1 style="font-weight: 700; font-size: 5rem;">The Team </h1>
+    <div id="team">
+        <div class="team-title">
+            <h1 style="font-weight: 700; font-size: 5rem;">The Team</h1>
             <p><u>All variations of Founder: Iyonawan Adonri</u></p>
+        </div>
+
+        <div class="team-container">
+            <div class="character">
+                <img src="{% static 'core/me1.png' %}" class="character-img">
+                <div class="team-card">
+                    <h3 class="team-role">The Engineer</h3>
+                    <p class="team-desc">Builds and maintains the product.</p>
+                </div>
             </div>
-            <br><br>
-            <div class="team-container">
-                <div class="character">
-                    <img src="{% static 'core/me1.png' %}" alt="The Engineer" class="character-img">
-                    <div class="team-card">
-                        <h3 class="team-role">The Engineer</h3>
-                        <p class="team-desc">Builds and maintains the product (Django backend, frontend, AI integration).</p>
-                    </div>
+
+            <div class="character">
+                <img src="{% static 'core/me2.png' %}" class="character-img">
+                <div class="team-card">
+                    <h3 class="team-role">The CEO</h3>
+                    <p class="team-desc">Vision, leadership, partnerships.</p>
                 </div>
-                <div class="character">
-                    <img src="{% static 'core/me2.png' %}" alt="The Engineer" class="character-img">
-                    <div class="team-card">
-                        <!-- <img src="{% static 'core/character2.png' %}" alt="The CEO"> -->
-                        <h3 class="team-role">The CEO</h3>
-                        <p class="team-desc">Vision, leadership, partnerships, fundraising, and overall company direction.</p>
-                    </div>
-                </div>
-                <div class="character">
-                    <img src="{% static 'core/me3.png' %}" alt="The Engineer" class="character-img">
-                    <div class="team-card">
-                        <!-- <img src="{% static 'core/character3.png' %}" alt="The Visionary"> -->
-                        <h3 class="team-role">The Visionary</h3>
-                        <p class="team-desc">Ensures every step aligns with the mission, long-term goals, and guides innovation.</p>
-                    </div>
+            </div>
+
+            <div class="character">
+                <img src="{% static 'core/me3.png' %}" class="character-img">
+                <div class="team-card">
+                    <h3 class="team-role">The Visionary</h3>
+                    <p class="team-desc">Mission alignment and innovation.</p>
                 </div>
             </div>
         </div>
-    <!-- </section> -->
-
-
+        <footer class="footer">
+            <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
+            <p>Responses may be inaccurate or incomplete.</p>
+            <p>Powered by AI to enhance learning and judgment, not replace it.</p>
+        </footer>
+    </div>
+    <!-- 🔥 CONTINUOUS BACKGROUND ENDS -->
     <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2025 DEXTA. All Rights Reserved.</p>
-        <p>Responses may be inaccurate or incomplete.</p>
-        <p>Powered by AI to enhance learning and judgment, not replace it.</p>
-    </footer>
+</div>
+
+</body>
+</html>
+
+
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("fade-in");
