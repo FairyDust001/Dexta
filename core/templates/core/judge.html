@@ -38,7 +38,7 @@
 
 <!-- Main Role Play Container -->
 <main class="judge-container">
-  <h1 class="judge-title">DECA Role Play Simulator</h1>
+  <h1 class="judge-title">DEXTA Role Play Simulator</h1>
   <p class="judge-subtitle">Practice as if in a real competition</p>
 
   <!-- === PREP PHASE === -->
@@ -360,14 +360,14 @@
   generatePromptBtn.addEventListener("click", async () => {
     const cluster = clusterSelect.value;
     const judge = judgeSelect.value;
-    promptDisplay.innerHTML = "<em>Generating your DECA Role Play prompt...</em>";
+    promptDisplay.innerHTML = "<em>Generating your DEXTA Role Play prompt...</em>";
     generatePromptBtn.disabled = true;
   
     try {
       const res = await fetch("/roleplay_chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "Generate DECA role play prompt", history: [], cluster, judge }),
+        body: JSON.stringify({ message: "Generate DEXTA role play prompt", history: [], cluster, judge }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -399,7 +399,7 @@
     chatPhase.classList.remove("hidden");
     startChatTimer(10);
   
-    const intro = "Welcome! I’m your DECA Judge. You may begin your presentation when ready.";
+    const intro = "Welcome! I’m your DEXTA Judge. You may begin your presentation when ready.";
     addMessage("ai", intro);
     speakText(intro, startRecording);
   }

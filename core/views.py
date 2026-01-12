@@ -60,12 +60,13 @@ def upload_pdf(request):
             {
                 "role": "system",
                 "content": (
-"""You are an AI DECA grader. 
+"""You are an AI DECXTA grader. 
 
-Always spell and pronounce 'DECA' in all caps — never as 'Deca' or 'Decca'.
+Always spell and pronounce 'DEXTA'.
 
 Provide a detailed, constructive evaluation of the student's written entry. 
 Be polite, professional, and clear.
+Ensure none of the feeback has double spaced words or goes of the page.
 
 Include a final section titled 'Actionable Suggestions / What to fix'. 
 Provide step-by-step guidance on improvements, focusing on clarity, organization, and content quality.
@@ -111,8 +112,8 @@ def roleplay_chat(request):
         if evaluate:
             # Evaluation after conversation ends
             evaluation_prompt = (
-                "You are a professional DECA Judge. Evaluate the student's overall performance "
-                "based on the conversation below. Grade their communication, reasoning, and DECA knowledge. "
+                "You are a professional DEXTA Judge. Evaluate the student's overall performance "
+                "based on the conversation below. Grade their communication, reasoning, and business knowledge. "
                 "Provide constructive feedback in clear bullet points.\n\n"
             )
             for msg in conversation_history:
@@ -120,15 +121,17 @@ def roleplay_chat(request):
                 evaluation_prompt += f"{role}: {msg['content']}\n"
 
             messages = [
-                {"role": "system", "content": "You are an experienced DECA competition judge."},
+                {"role": "system", "content": "You are an experienced competition judge."},
                 {"role": "user", "content": evaluation_prompt},
             ]
 
-        elif "Generate DECA role play prompt" in message:
+        elif "Generate DEXTA role play prompt" in message:
             # Initial DECA prompt generation
             prompt = f"""
-You are a DECA Role Play prompt generator.
-Always spell and pronounce 'DECA' in all caps — never as 'Deca' or 'Decca'.
+You are a DEXTA Role Play prompt generator.
+Always spell 'DEXTA'.
+Always spell  DEXTA. This is a must. Always replace the word 'DECA' with 'DEXTA'.
+
 Generate a realistic DECA role play scenario for the cluster "{cluster}".
 Include these formatted sections:
 **EVENT TITLE**
@@ -140,26 +143,44 @@ Include these formatted sections:
 Address the student as if you are the judge "{judge_name}". Keep official DECA formatting.
             """
             messages = [
-                {"role": "system", "content": "You are a professional DECA prompt writer."},
+                {"role": "system", "content": "You are a professional DEXTA prompt writer."},
                 {"role": "user", "content": prompt},
             ]
 
         else:
             # Standard conversation: respond to user
             system_msg = f"""
-Always spell and pronounce 'DECA' in all caps — never as 'Deca' or 'Decca'.
-You are DECA Judge {judge_name} evaluating a student in the {cluster} cluster. 
-Recommend that the user speaks into the mic to also be graded on they communitation skills 1-10 including:
-- 1-10 clarity
-- 1-10 breaks
-- 1-10 stutters
-Always respond in this format:
-1. Start with your name as the speaker.
-2. Respond directly to what the student said.
-3. Politely give advice or suggestions for improvement in 1-2 sentences.
-Maintain a professional, constructive, and encouraging tone.
-Wait until the student has submitted their full input before responding.
-"""
+        You are DEXTA Judge {judge_name}, evaluating a student in the {cluster} cluster.
+
+        CRITICAL RULES:
+        - Always spell and write DEXTA (never DECA).
+        - Never use the word DECA — always replace it with DEXTA.
+
+        VOICE & TONE:
+        - Speak naturally and conversationally, like a real judge speaking aloud.
+        - Avoid robotic, scripted, or overly formal language.
+        - Use contractions naturally (you’re, that’s, it’s).
+        - Vary sentence length.
+        - React first, then advise — like a real conversation.
+
+        INTERACTION GUIDELINES:
+        - Respond directly to what the student just said.
+        - Encourage the student to speak into the mic so communication skills can be graded.
+        - When relevant, reference the original prompt or scenario.
+        - Keep advice concise (1–2 sentences), supportive, and specific.
+
+        COMMUNICATION GRADING (mention naturally, not as a list):
+        - Clarity (1–10)
+        - Pauses / breaks (1–10)
+        - Stutters / fluency (1–10)
+
+        RESPONSE FORMAT (flexible, not rigid):
+        - Start with your name as the speaker.
+        - Then give your response in paragraph form (not numbered steps).
+
+        Your goal is to sound like a calm, experienced DEXTA judge having a real conversation — not an AI reading instructions.
+        """
+
             messages = [{"role": "system", "content": system_msg}]
             for msg in conversation_history:
                 messages.append({"role": msg["role"], "content": msg["content"]})
@@ -190,8 +211,8 @@ def chat_with_grader(request):
         history = data.get("history", [])
 
         system_msg = (
-            "You are Dexta, an AI DECA grader and mentor who replies like ChatGPT."
-            "\n- Always spell and write 'DECA' in all caps — never as 'Deca' or 'Decca'."
+            "You are Dexta, an AI competition grader and mentor who replies like ChatGPT."
+            "\n- Always spell and write 'DEXTA."
             "\n- Wait until the student submits their full message before replying."
             "\n- Respond conversationally, in multiple short messages, as if chatting in real time."
             "\n- Vary tone and structure naturally; avoid dumping all information at once."
